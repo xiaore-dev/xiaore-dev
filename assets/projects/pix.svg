@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 54 48" width="54" height="48">
+  <title>连接工具的分叉节点</title>
+  <rect width="54" height="48" rx="3" fill="#f4efdf"/>
+  <path d="M12 27h8q4 0 4-4v-4q0-5 5-5h10m-19 13q4 0 4 3v2q0 4 5 4h12" fill="none" stroke="#153d39" stroke-width="2.4"/>
+  <path d="m10 20 7 4v8l-7 4-7-4v-8z" fill="#427c70" stroke="#153d39" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="m5 25 5 3 5-3m-5 3v6" fill="none" stroke="#f4efdf" stroke-width="1.2"/>
+  <path d="m40 6 7 7-7 7-7-7z" fill="#cf492f"/>
+  <path d="M35 30h11v11H35z" fill="#153d39"/>
+  <path d="m38 38 5-5m-1 5 2-2" fill="none" stroke="#f4efdf" stroke-width="1.2"/>
+</svg>
