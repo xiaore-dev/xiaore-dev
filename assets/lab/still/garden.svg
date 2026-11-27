@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="205" viewBox="0 0 920 205" role="img" aria-labelledby="name desc">
+  <title id="name">Digital Garden — xiaore.xyz</title>
+  <desc id="desc">An open field of folded leaves sends a signal from the root to its tips.</desc>
+  <defs>
+    <pattern id="plot" width="42" height="24" patternUnits="userSpaceOnUse">
+      <path d="M-21 0 21 24 63 0M-21 24 21 0 63 24" stroke="white" stroke-width=".7" fill="none" opacity=".18" />
+    </pattern>
+    <clipPath id="field"><rect x="514" width="406" height="205" /></clipPath>
+  </defs>
+  <rect x=".5" y=".5" width="919" height="204" fill="#fff" stroke="#D7E0EA" />
+  <path d="M0 0h70v5H0z" fill="#2457E6" />
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="33" y="54" fill="#64748B" font-family="ui-monospace, Consolas, monospace" font-size="16" letter-spacing="2">PERSONAL BLOG</text>
+    <text x="28" y="151" fill="#182433" font-size="81" font-weight="700" letter-spacing="-5">xiaore.xyz</text>
+    <path d="M449 105l26-26m-24 0h24v24" stroke="#2457E6" stroke-width="4" fill="none" />
+  </g>
+  <g clip-path="url(#field)">
+    <path fill="#2457E6" d="M514 0h406v205H514z" />
+    <path fill="url(#plot)" d="M514 0h406v205H514z" />
+    
+    <g fill="none" stroke="white" stroke-width="2">
+      <path d="M540 208 639 151l55 32 53-31v-36M639 151v-31l-39-22V77M694 183v-71l-23-13V69" />
+      <path d="m747 152 81-47V74m-81 42 35-20V65" />
+    </g>
+    <g stroke="#2457E6" stroke-width="1.5" stroke-linejoin="round">
+      <path d="m600 84-42-24 1-29 41 23z" fill="#F6F8FA" /><path d="m600 84 28-16 3-30-31 16z" fill="#89D5CC" />
+      <path d="m672 82-56-32 1-39 55 33z" fill="#fff" /><path d="m672 82 34-20 4-42-38 24z" fill="#B8E7E1" />
+      <path d="m747 124-48-28-4-36 52 28z" fill="#F6F8FA" /><path d="m747 124 36-21 5-38-41 23z" fill="#99DAD2" />
+      <path d="m782 74-31-17-3-24 34 18z" fill="#fff" /><path d="m782 74 25-15 4-25-29 17z" fill="#B8E7E1" />
+      <path d="m828 85-38-21-3-30 41 23z" fill="#F6F8FA" /><path d="m828 85 43-25 4-33-47 30z" fill="#89D5CC" />
+    </g>
+    <g fill="#fff">
+      <circle cx="639" cy="151" r="3" /><circle cx="694" cy="183" r="3" /><circle cx="747" cy="152" r="3" />
+    </g>
+    </g>
+</svg>

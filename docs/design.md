@@ -1,48 +1,65 @@
-# 设计手记 · 七层云版画
+# Xiaore / Agent Lab 设计与维护
 
-## 从主页里能读到什么
+## 从账号到封面
 
-改版前，同名仓库只有一份默认 README。访客只能看到一句问候，其余内容都在模板注释里。从账户的公开仓库中选出四个项目，整理成首页目录。账号拼写给了封面一个独有的图形线索，项目本身则回答访客接下来可以看什么。[公开仓库列表](https://github.com/x1975544-cloud?tab=repositories)
+这次改版以 Xiaore、个人博客和技术探索方向为内容来源。此前 README 的入口按仓库组织，本版把入口改为个人介绍、两张概念图、开发环境和博客。旧素材保留在原处，新主页和本地预览只引用 `assets/lab/`。
 
-项目名、链接与功能说明以各仓库的公开内容为依据。介绍的范围限于项目功能，个人履历留给账户主人日后补充。[react-agent](https://github.com/x1975544-cloud/react-agent) · [pix-agent](https://github.com/x1975544-cloud/pix-agent) · [ai-coding](https://github.com/x1975544-cloud/ai-coding) · [SpecFlow](https://github.com/x1975544-cloud/SpecFlow)
+| 初选构图 | 阅读体验 | 取舍 |
+| --- | --- | --- |
+| 偏心轨道图册 | 左侧先读 Xiaore，再沿基线读到右侧的旋转球体 | 采用。标题与复杂线框各有空间，手机上可以上下重排 |
+| 同心仪表盘 | 球体占中心，名称与方向沿外圈分布 | 环绕构图有空间感，长标题需要转向阅读 |
+| 信号剖面 | 倾斜的扫描带穿过标题和球体 | 速度感强，窄屏裁切会削弱姓名的完整轮廓 |
 
-## 三个案例带来的取舍
+构图按瑞士平面设计约 50%、控制台约 30%、赛博朋克约 20% 把握。大字、非对称平衡和留白控制第一眼的阅读顺序。工程编号、经纬线与扫描定位属于第二层。粉色只在低频的标题错位中短暂出现。
 
-- **Simon Willison 的出版索引。** 发布记录、博客与学习笔记各有独立入口，标题和日期就能说明点开后会看到什么。并列呈现许多长标题需要较宽的阅读空间。这次保留索引的直接性，四个项目逐项向下阅读。[主页源码与效果](https://github.com/simonw/simonw#readme)
-- **Tim Burgan 的社区棋盘。** 一盘等待落子的国际象棋给人明确的视觉记忆，点选一步会打开预填的议题，再由工作流更新棋局。这个玩法值得单独占据首屏，也需要持续维护状态。这里让版画承担视觉焦点，把访问项目的动作留给普通链接。[主页源码与玩法](https://github.com/timburgan/timburgan#readme)
-- **Kautuk Kundan 的字符画。** 等宽字符拼成的人物让开篇有了自己的语气，随后自然过渡到作品文字。字符之间的相对位置依赖固定列宽，窄屏容易出现横向滚动。独立矢量插画可以保留完整构图，正文仍能自由换行。[主页源码与效果](https://github.com/kautukkundan/kautukkundan#readme)
+## 颜色与动效
 
-## 三条设计路线
-
-| 方案 | 视觉表现 | 原创性 | 实用性 | 兼容性 | 维护成本 |
-| --- | --- | --- | --- | --- | --- |
-| 七层云版画 | 七层轮廓叠成整幅云景，版面有明确重心 | 从账号的七位数字取形，图案随账号而定 | 封面下直接进入四个项目 | 封面等比缩放，文字独立换行 | 低，增删项目只改目录 |
-| 项目线路图 | 每个仓库成为一个站点，浏览顺序一目了然 | 路线可根据项目间的真实联系绘制 | 适合讲解有明确依赖或次序的项目 | 窄屏会压缩站名和路线间距 | 中，新增项目时要重排站点 |
-| 作品接触印样 | 每个项目配一格缩略图，如同观看一张摄影接触印样 | 可从各项目自己的界面或输出取材 | 适合直接比较图像或界面效果 | 图片可缩放，小尺寸截图容易丢失细节 | 高，界面迭代后需重新制作图版 |
-
-选定**七层云版画**。四个项目各有入口，一张线路图容易暗示它们之间存在固定次序。接触印样更依赖每个项目都有可辨认的截图。版画只取材于名称，在项目目录增减时仍然成立。
-
-## 画面与阅读顺序
-
-封面将账号中的 `cloud` 读作云，将 `1975544` 的七个数字逐一用于七层云廓的形态。米白像未着墨的纸，墨色压住轮廓，青绿铺开层次，少量朱红牵引视线。画面采用静帧，云层的起伏与疏密已经足以表达流动感。
-
-下方目录使用 GitHub 原生文字，每个项目的名称本身就是入口。封面带有自己的纸色与墨色，在深浅背景上都能保留套色关系。正文颜色与字号跟随 GitHub 主题，仓库内的图片可使用相对路径引用。[GitHub 图片与替代文字](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#images)
-
-GitHub 会在符合条件的同名公开仓库中读取根目录的非空 README。案例只用于研究构图、信息组织和交互方式，封面图形在本仓库独立绘制。[GitHub 个人主页 README 说明](https://docs.github.com/en/account-and-profile/how-tos/profile-customization/managing-your-profile-readme#prerequisites)
-
-## 实现与预览
-
-桌面封面为 1120 × 440。手机封面为 500 × 475，保留字号层次，把云版移到标题下方。README 通过 `<picture>` 在视口宽度不超过 600 px 时选择手机构图，内层 `<img>` 提供横版后备图。米白纸张在两种主题中使用同一套油墨，正文、链接和标题分隔线跟随 GitHub 主题。[GitHub 的 picture 示例](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/quickstart-for-writing-on-github#adding-an-image-to-suit-your-visitors)
-
-在 VS Code 中打开根目录的 [README](../README.md)，运行「Markdown: Open Preview to the Side」。把预览面板收窄到 600 px 以下可查看手机排版，切换编辑器的深浅主题可检查正文对比。也可直接用浏览器打开[横版封面](../assets/cloud-press.svg)或[手机版封面](../assets/cloud-press-mobile.svg)，放大查看刻纹。本地编辑器和 GitHub 的文字间距、链接样式可能略有不同。
-
-## 后续维护
-
-| 要修改的内容 | 位置与做法 |
+| 用途 | 颜色 |
 | --- | --- |
-| 项目名称、排序或介绍 | 编辑根目录的 `README.md`。每项包含一个仓库链接和一句可从该仓库核实的说明。 |
-| 项目图标 | 编辑 `assets/projects/` 下对应的 SVG。画布为 54 × 48，名称已在相邻链接中，图标使用空替代文本。 |
-| 云版轮廓、颜色或布局 | 编辑 [print_cloud.py](../scripts/print_cloud.py)。`CLOUD` 定义共用版形，`DIGITS` 为七位制版参数，文件顶部是主色常量。 |
-| 重新出图 | 在仓库根目录运行 `python3 scripts/print_cloud.py`，同时更新两张封面。直接修改生成的 SVG 会在下次出图时被覆盖。 |
+| 纸面与图层 | 冷白 `#F6F8FA`、纯白 `#FFFFFF` |
+| 主次文字 | 墨蓝 `#182433`、灰蓝 `#64748B` |
+| 结构与反馈 | 科技蓝 `#2457E6`、科技青 `#009F91` |
+| 细线与瞬时强调 | 边框 `#D7E0EA`、故障粉 `#E88DAB` |
 
-四枚图标和封面的路径均在本仓库内绘制，字体由设备本地的衬线和等宽字体提供。生成器只用 Python 标准库；访问主页只需加载选中的封面和四枚图标。日常更新项目目录无须运行脚本或配置 GitHub Actions。
+- **Hero** 由三维经纬线投影出前后半球。球体以 28 秒转一圈，粒子沿 22 秒轨道绕行。网格、扫描线和文字切片分别使用 26、21、13 秒的节奏。角标 FIG. 01 是图版编号。
+- **Intelligence Loop** 沿闭合轨道用 10 秒走完感知、推理、行动、观察和返回。信号到达时，相应节点亮起。这是一张原理图。
+- **Technology Radar** 用 18 秒扫过七个主题。所有主题处在同一半径上，角度用于区分标签。手机图用字母把点位与下方图例对应起来。
+- **Development Environment** 用四枚原创图标区分 Python、TypeScript、Pydantic 和 Playwright。来自账号公开代码中的语言和依赖有据可查。下划线轮流着色，不显示计量值。
+- **Digital Garden** 把电路分叉画成折叠的叶片，两束信号从根部走向叶尖。读者可以点击整幅图，也可以直接点击可复制的域名。
+- **分割线和页脚** 共用短线和逐段亮起的色块，页尾保留品牌标语。图片拥有固定浅色画布，正文和原生链接跟随 GitHub 的阅读主题。
+
+## 文件与更新
+
+| 位置 | 修改方式 |
+| --- | --- |
+| `README.md` | 个人资料、段落顺序、博客链接和替代文字的唯一正文来源。仅使用 GitHub 支持的 HTML 标签。 |
+| `scripts/draw_hero.py` | 修改球体投影、封面排印和动效参数，同时输出横版和窄屏版。 |
+| `scripts/draw_diagrams.py` | 修改运行步骤、雷达方向和开发环境图标，同时生成两种版式。 |
+| `assets/lab/` | 各组件的独立动态 SVG。花园、分割线和页脚直接在这里编辑。 |
+| `assets/lab/still/` | 无动画的对应 SVG。静态版从同一份几何图形生成。 |
+| `scripts/build_preview.py`、`preview.html` | 提取静帧，将 README 正文嵌入本地预览外壳。主题和静帧控件只在本地预览中出现。 |
+
+在仓库根目录运行下列命令可重建所有生成文件，只需要 Python 3 标准库。单独修改 README、分割线、花园或页脚后只需运行最后一条。
+
+```sh
+python3 scripts/draw_hero.py
+python3 scripts/draw_diagrams.py
+python3 scripts/build_preview.py
+```
+
+静态版使用 SVG 元素本身的颜色、位置和路径。新增动效时，把初始可读状态写在元素属性上，动画样式放在 SVG 的 `<style>` 或 SMIL 标签里。仅用于传输的粒子组可标记为 `data-motion-only="true"`，出静帧时会移除。
+
+## 预览与兼容性
+
+直接在浏览器打开仓库根目录的 [preview.html](../preview.html)。桌面正文外框上限为 900 px，收窄窗口到 640 px 或以下可切换手机图版。选择 **Dark** 检查深色环境，勾选 **Still frames** 可单独看静态构图。操作系统启用「减少动态效果」时，页面也会自动选择静帧。
+
+README 中只放图片引用、原生文字和链接。动画留在自包含 SVG 内，由图片渲染器播放，字体走本地系统栈。GitHub 文档提供了 picture/source 和后备 img 的写法，浏览器以图片方式加载 SVG 时会限制脚本和外部资源。本设计不需要远程字体、第三方动态图服务、令牌或定时工作流。[GitHub 图片示例](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/quickstart-for-writing-on-github#adding-an-image-to-suit-your-visitors) · [MDN 对 SVG 图片上下文的说明](https://developer.mozilla.org/en-US/docs/Web/SVG/Guides/SVG_as_an_image)
+
+线上核对时，该账号已有 README 的窄屏 source 条件得到保留，GitHub 将仓库相对路径改写为可访问的原图 URL，公开 SVG 返回 `image/svg+xml`。博客地址返回 HTTP 200。本地预览复用 README 正文与图片，不模拟 GitHub 完整的 HTML 清洗、图片代理或移动客户端。针对通用测试片段的匿名 Markdown API 请求遇到限流。新版实际发布效果要在同名公开仓库的 GitHub 页面上核对。[GitHub 个人主页展示条件](https://docs.github.com/en/account-and-profile/how-tos/profile-customization/managing-your-profile-readme)
+
+### 本次检查
+
+- 在桌面 Chrome 中将七个组件作为 `<img>` 加载，分别截取多帧比较。七个组件均发生变化，其中球体中心的蓝色经纬线也有独立的帧间变化。启用系统级减少动态效果模拟后，七个组件在同一采样区间内的帧间像素差均为零。
+- 四组信息量较大的图版各有桌面与手机版。两种屏宽下每次各显示七张图，动态 SVG 合计约 49–51 KB。静态资源含完整几何、文字和替代说明，静帧合计约 35 KB。
+- 已检查 22 张 SVG 的 XML、内部引用与本地图片路径，连续重建结果逐字节一致。图中全部字体为系统字体，项目内无需分发字体文件。
+- Chrome 整页检查覆盖 1280、375、320 px 三种视口。两个手机宽度的文档均无横向溢出。四个窄版组件全部命中，静帧控件和系统减少动态效果偏好均切换全部七个组件。深色主题下的文字链接和整幅博客入口都保持可访问。

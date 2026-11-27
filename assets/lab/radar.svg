@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="330" viewBox="0 0 960 330" role="img" aria-labelledby="title desc">
+<title id="title">Technology radar</title>
+<desc id="desc">Agent Architecture, LLM Inference, Context Engineering, Tool Calling, MCP, RAG, Software Engineering. A map of exploration topics.</desc>
+<rect x=".5" y=".5" width="959" height="329" fill="#FFFFFF" stroke="#D7E0EA"/>
+<style>
+@keyframes sweep {to {transform:rotate(360deg)}}
+@keyframes echo {0% {opacity:0;transform:scale(.68)} 4% {opacity:.55} 16%,100% {opacity:0;transform:scale(1.7)}}
+@keyframes core {0%,70%,100% {opacity:.18} 35% {opacity:.65}}
+.sweep {animation:sweep 18s linear infinite}
+.echo {animation:echo 18s ease-out infinite}
+.core {animation:core 8s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce) {.sweep,.echo,.core {animation:none}}
+</style>
+<g transform="translate(460 165)">
+<circle r="126" fill="#F6F8FA"/>
+<circle r="34.02" fill="none" stroke="#D7E0EA" stroke-width="1"/>
+<circle r="66.78" fill="none" stroke="#D7E0EA" stroke-width="1"/>
+<circle r="98.28" fill="none" stroke="#D7E0EA" stroke-width="1"/>
+<circle r="126.00" fill="none" stroke="#D7E0EA" stroke-width="1"/>
+<path d="M0 0L126.00,0.00" stroke="#D7E0EA" stroke-width=".8"/>
+<path d="M0 0L89.10,89.10" stroke="#D7E0EA" stroke-width=".8"/>
+<path d="M0 0L0.00,126.00" stroke="#D7E0EA" stroke-width=".8"/>
+<path d="M0 0L-89.10,89.10" stroke="#D7E0EA" stroke-width=".8"/>
+<path d="M0 0L-126.00,0.00" stroke="#D7E0EA" stroke-width=".8"/>
+<path d="M0 0L-89.10,-89.10" stroke="#D7E0EA" stroke-width=".8"/>
+<path d="M0 0L-0.00,-126.00" stroke="#D7E0EA" stroke-width=".8"/>
+<path d="M0 0L89.10,-89.10" stroke="#D7E0EA" stroke-width=".8"/>
+<path d="M130.00,0.00L136.00,0.00" stroke="#64748B"/>
+<path d="M129.51,11.33L131.50,11.50" stroke="#D7E0EA"/>
+<path d="M128.03,22.57L129.99,22.92" stroke="#D7E0EA"/>
+<path d="M125.57,33.65L127.50,34.16" stroke="#D7E0EA"/>
+<path d="M122.16,44.46L124.04,45.15" stroke="#D7E0EA"/>
+<path d="M117.82,54.94L119.63,55.79" stroke="#D7E0EA"/>
+<path d="M112.58,65.00L117.78,68.00" stroke="#64748B"/>
+<path d="M106.49,74.56L108.13,75.71" stroke="#D7E0EA"/>
+<path d="M99.59,83.56L101.12,84.85" stroke="#D7E0EA"/>
+<path d="M91.92,91.92L93.34,93.34" stroke="#D7E0EA"/>
+<path d="M83.56,99.59L84.85,101.12" stroke="#D7E0EA"/>
+<path d="M74.56,106.49L75.71,108.13" stroke="#D7E0EA"/>
+<path d="M65.00,112.58L68.00,117.78" stroke="#64748B"/>
+<path d="M54.94,117.82L55.79,119.63" stroke="#D7E0EA"/>
+<path d="M44.46,122.16L45.15,124.04" stroke="#D7E0EA"/>
+<path d="M33.65,125.57L34.16,127.50" stroke="#D7E0EA"/>
+<path d="M22.57,128.03L22.92,129.99" stroke="#D7E0EA"/>
+<path d="M11.33,129.51L11.50,131.50" stroke="#D7E0EA"/>
+<path d="M0.00,130.00L0.00,136.00" stroke="#64748B"/>
+<path d="M-11.33,129.51L-11.50,131.50" stroke="#D7E0EA"/>
+<path d="M-22.57,128.03L-22.92,129.99" stroke="#D7E0EA"/>
+<path d="M-33.65,125.57L-34.16,127.50" stroke="#D7E0EA"/>
+<path d="M-44.46,122.16L-45.15,124.04" stroke="#D7E0EA"/>
+<path d="M-54.94,117.82L-55.79,119.63" stroke="#D7E0EA"/>
+<path d="M-65.00,112.58L-68.00,117.78" stroke="#64748B"/>
+<path d="M-74.56,106.49L-75.71,108.13" stroke="#D7E0EA"/>
+<path d="M-83.56,99.59L-84.85,101.12" stroke="#D7E0EA"/>
+<path d="M-91.92,91.92L-93.34,93.34" stroke="#D7E0EA"/>
+<path d="M-99.59,83.56L-101.12,84.85" stroke="#D7E0EA"/>
+<path d="M-106.49,74.56L-108.13,75.71" stroke="#D7E0EA"/>
+<path d="M-112.58,65.00L-117.78,68.00" stroke="#64748B"/>
+<path d="M-117.82,54.94L-119.63,55.79" stroke="#D7E0EA"/>
+<path d="M-122.16,44.46L-124.04,45.15" stroke="#D7E0EA"/>
+<path d="M-125.57,33.65L-127.50,34.16" stroke="#D7E0EA"/>
+<path d="M-128.03,22.57L-129.99,22.92" stroke="#D7E0EA"/>
+<path d="M-129.51,11.33L-131.50,11.50" stroke="#D7E0EA"/>
+<path d="M-130.00,0.00L-136.00,0.00" stroke="#64748B"/>
+<path d="M-129.51,-11.33L-131.50,-11.50" stroke="#D7E0EA"/>
+<path d="M-128.03,-22.57L-129.99,-22.92" stroke="#D7E0EA"/>
+<path d="M-125.57,-33.65L-127.50,-34.16" stroke="#D7E0EA"/>
+<path d="M-122.16,-44.46L-124.04,-45.15" stroke="#D7E0EA"/>
+<path d="M-117.82,-54.94L-119.63,-55.79" stroke="#D7E0EA"/>
+<path d="M-112.58,-65.00L-117.78,-68.00" stroke="#64748B"/>
+<path d="M-106.49,-74.56L-108.13,-75.71" stroke="#D7E0EA"/>
+<path d="M-99.59,-83.56L-101.12,-84.85" stroke="#D7E0EA"/>
+<path d="M-91.92,-91.92L-93.34,-93.34" stroke="#D7E0EA"/>
+<path d="M-83.56,-99.59L-84.85,-101.12" stroke="#D7E0EA"/>
+<path d="M-74.56,-106.49L-75.71,-108.13" stroke="#D7E0EA"/>
+<path d="M-65.00,-112.58L-68.00,-117.78" stroke="#64748B"/>
+<path d="M-54.94,-117.82L-55.79,-119.63" stroke="#D7E0EA"/>
+<path d="M-44.46,-122.16L-45.15,-124.04" stroke="#D7E0EA"/>
+<path d="M-33.65,-125.57L-34.16,-127.50" stroke="#D7E0EA"/>
+<path d="M-22.57,-128.03L-22.92,-129.99" stroke="#D7E0EA"/>
+<path d="M-11.33,-129.51L-11.50,-131.50" stroke="#D7E0EA"/>
+<path d="M-0.00,-130.00L-0.00,-136.00" stroke="#64748B"/>
+<path d="M11.33,-129.51L11.50,-131.50" stroke="#D7E0EA"/>
+<path d="M22.57,-128.03L22.92,-129.99" stroke="#D7E0EA"/>
+<path d="M33.65,-125.57L34.16,-127.50" stroke="#D7E0EA"/>
+<path d="M44.46,-122.16L45.15,-124.04" stroke="#D7E0EA"/>
+<path d="M54.94,-117.82L55.79,-119.63" stroke="#D7E0EA"/>
+<path d="M65.00,-112.58L68.00,-117.78" stroke="#64748B"/>
+<path d="M74.56,-106.49L75.71,-108.13" stroke="#D7E0EA"/>
+<path d="M83.56,-99.59L84.85,-101.12" stroke="#D7E0EA"/>
+<path d="M91.92,-91.92L93.34,-93.34" stroke="#D7E0EA"/>
+<path d="M99.59,-83.56L101.12,-84.85" stroke="#D7E0EA"/>
+<path d="M106.49,-74.56L108.13,-75.71" stroke="#D7E0EA"/>
+<path d="M112.58,-65.00L117.78,-68.00" stroke="#64748B"/>
+<path d="M117.82,-54.94L119.63,-55.79" stroke="#D7E0EA"/>
+<path d="M122.16,-44.46L124.04,-45.15" stroke="#D7E0EA"/>
+<path d="M125.57,-33.65L127.50,-34.16" stroke="#D7E0EA"/>
+<path d="M128.03,-22.57L129.99,-22.92" stroke="#D7E0EA"/>
+<path d="M129.51,-11.33L131.50,-11.50" stroke="#D7E0EA"/>
+<path d="M-114.94,-58.56A129 129 0 0 1 -94.34,-87.98" fill="none" stroke="#2457E6" stroke-width="2.2"/>
+<path d="M-48.32,-119.61A129 129 0 0 1 -13.48,-128.29" fill="none" stroke="#009F91" stroke-width="2.2"/>
+<path d="M73.99,-105.67A129 129 0 0 1 100.25,-81.18" fill="none" stroke="#2457E6" stroke-width="2.2"/>
+<path d="M127.04,-22.40A129 129 0 0 1 128.29,13.48" fill="none" stroke="#009F91" stroke-width="2.2"/>
+<path d="M106.95,72.14A129 129 0 0 1 82.92,98.82" fill="none" stroke="#2457E6" stroke-width="2.2"/>
+<path d="M26.82,126.18A129 129 0 0 1 -9.00,128.69" fill="none" stroke="#009F91" stroke-width="2.2"/>
+<path d="M-89.61,92.79A129 129 0 0 1 -111.72,64.50" fill="none" stroke="#2457E6" stroke-width="2.2"/>
+<g class="sweep">
+<path d="M0 0L-64.89,-108.00A126 126 0 0 1 -55.23,-113.25Z" fill="#2457E6" opacity="0.012"/>
+<path d="M0 0L-55.23,-113.25A126 126 0 0 1 -45.15,-117.63Z" fill="#2457E6" opacity="0.024"/>
+<path d="M0 0L-45.15,-117.63A126 126 0 0 1 -34.73,-121.12Z" fill="#2457E6" opacity="0.036"/>
+<path d="M0 0L-34.73,-121.12A126 126 0 0 1 -24.04,-123.69Z" fill="#2457E6" opacity="0.048"/>
+<path d="M0 0L-24.04,-123.69A126 126 0 0 1 -13.17,-125.31Z" fill="#2457E6" opacity="0.060"/>
+<path d="M0 0L-13.17,-125.31A126 126 0 0 1 -2.20,-125.98Z" fill="#2457E6" opacity="0.072"/>
+<path d="M0 0V-126" stroke="#2457E6" stroke-width="1.2" opacity=".65"/></g>
+<circle class="core" r="13" fill="none" stroke="#009F91" opacity=".45"/><circle r="6" fill="#182433"/><circle r="2" fill="white"/></g>
+<path d="M379.49,108.63L362.12,126.00H266" fill="none" stroke="#64748B" stroke-opacity=".63"/>
+<text x="255" y="132" text-anchor="end" font-family="Inter,Helvetica Neue,Arial,sans-serif" font-size="21" font-weight="600" fill="#182433">Agent Architecture</text>
+<g transform="translate(379.49 108.63)">
+<circle class="echo" style="animation-delay:-2.750s" r="8" stroke="#2457E6" fill="none" opacity="0"/>
+<circle r="5.3" fill="white" stroke="#2457E6" stroke-width="2"/><circle r="2.2" fill="#2457E6"/></g>
+<path d="M436.22,69.64L420.58,54.00H266" fill="none" stroke="#64748B" stroke-opacity=".63"/>
+<text x="255" y="60" text-anchor="end" font-family="Inter,Helvetica Neue,Arial,sans-serif" font-size="21" font-weight="600" fill="#182433">LLM Inference</text>
+<g transform="translate(436.22 69.64)">
+<circle class="echo" style="animation-delay:-0.700s" r="8" stroke="#009F91" fill="none" opacity="0"/>
+<circle r="5.3" fill="white" stroke="#009F91" stroke-width="2"/><circle r="2.2" fill="#009F91"/></g>
+<path d="M527.03,93.12L571.15,49.00H680" fill="none" stroke="#64748B" stroke-opacity=".63"/>
+<text x="691" y="55" text-anchor="start" font-family="Inter,Helvetica Neue,Arial,sans-serif" font-size="21" font-weight="600" fill="#182433">Context Engineering</text>
+<g transform="translate(527.03 93.12)">
+<circle class="echo" style="animation-delay:-15.850s" r="8" stroke="#2457E6" fill="none" opacity="0"/>
+<circle r="5.3" fill="white" stroke="#2457E6" stroke-width="2"/><circle r="2.2" fill="#2457E6"/></g>
+<path d="M558.22,161.57L602.79,117.00H680" fill="none" stroke="#64748B" stroke-opacity=".63"/>
+<text x="691" y="123" text-anchor="start" font-family="Inter,Helvetica Neue,Arial,sans-serif" font-size="21" font-weight="600" fill="#182433">Tool Calling</text>
+<g transform="translate(558.22 161.57)">
+<circle class="echo" style="animation-delay:-13.600s" r="8" stroke="#009F91" fill="none" opacity="0"/>
+<circle r="5.3" fill="white" stroke="#009F91" stroke-width="2"/><circle r="2.2" fill="#009F91"/></g>
+<path d="M533.04,230.76L557.80,206.00H680" fill="none" stroke="#64748B" stroke-opacity=".63"/>
+<text x="691" y="212" text-anchor="start" font-family="Inter,Helvetica Neue,Arial,sans-serif" font-size="21" font-weight="600" fill="#182433">MCP</text>
+<g transform="translate(533.04 230.76)">
+<circle class="echo" style="animation-delay:-11.400s" r="8" stroke="#2457E6" fill="none" opacity="0"/>
+<circle r="5.3" fill="white" stroke="#2457E6" stroke-width="2"/><circle r="2.2" fill="#2457E6"/></g>
+<path d="M466.86,263.04L476.82,273.00H680" fill="none" stroke="#64748B" stroke-opacity=".63"/>
+<text x="691" y="279" text-anchor="start" font-family="Inter,Helvetica Neue,Arial,sans-serif" font-size="21" font-weight="600" fill="#182433">RAG</text>
+<g transform="translate(466.86 263.04)">
+<circle class="echo" style="animation-delay:-9.200s" r="8" stroke="#009F91" fill="none" opacity="0"/>
+<circle r="5.3" fill="white" stroke="#009F91" stroke-width="2"/><circle r="2.2" fill="#009F91"/></g>
+<path d="M382.55,225.51L364.06,244.00H266" fill="none" stroke="#64748B" stroke-opacity=".63"/>
+<text x="255" y="250" text-anchor="end" font-family="Inter,Helvetica Neue,Arial,sans-serif" font-size="21" font-weight="600" fill="#182433">Software Engineering</text>
+<g transform="translate(382.55 225.51)">
+<circle class="echo" style="animation-delay:-6.400s" r="8" stroke="#2457E6" fill="none" opacity="0"/>
+<circle r="5.3" fill="white" stroke="#2457E6" stroke-width="2"/><circle r="2.2" fill="#2457E6"/></g>
+</svg>

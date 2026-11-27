@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Xiaore / Agent Lab — README preview</title>
+<style>
+:root{color-scheme:light;--bg:#fff;--ink:#1f2328;--muted:#59636e;--rule:#d1d9e0;--link:#0969da;--bar:#f6f8fa}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#0d1117;--ink:#f0f6fc;--muted:#9198a1;--rule:#3d444d;--link:#4493f8;--bar:#151b23}}
+:root[data-theme=dark]{color-scheme:dark;--bg:#0d1117;--ink:#f0f6fc;--muted:#9198a1;--rule:#3d444d;--link:#4493f8;--bar:#151b23}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+header,article{max-width:900px;margin:auto}header{display:flex;align-items:center;gap:18px;padding:16px 4px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+header strong{color:var(--ink);margin-right:auto}select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:5px;padding:3px}
+input{vertical-align:middle;accent-color:#2457e6}article{padding:28px 32px;border:1px solid var(--rule);border-radius:6px;margin-bottom:30px}
+article h2{margin:24px 0 12px;font-size:1.5em;font-weight:600;line-height:1.25;border-bottom:1px solid var(--rule);padding-bottom:.3em}
+article p{margin:0 0 16px}article a{color:var(--link);text-underline-offset:2px}article img{max-width:100%;height:auto;vertical-align:middle}
+article picture{display:block;margin:0 0 16px}article>picture:last-child{margin:24px 0 0}
+:focus-visible{outline:2px solid var(--link);outline-offset:3px}
+@media(max-width:640px){article{padding:16px;border:0}header{padding:10px 16px;gap:8px 14px;background:var(--bar)}header strong{width:100%}}
+</style></head><body>
+<header aria-label="Local preview controls"><strong>README.md · Local preview</strong>
+<label>Theme <select id="theme"><option value="auto">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+<label><input type="checkbox" id="still"> Still frames</label></header>
+<main><article aria-label="Xiaore GitHub profile">
+<picture>
+  <source media="(prefers-reduced-motion: reduce) and (max-width: 640px)" srcset="assets/lab/still/hero-mobile.svg">
+  <source media="(prefers-reduced-motion: reduce)" srcset="assets/lab/still/hero.svg">
+  <source media="(max-width: 640px)" srcset="assets/lab/hero-mobile.svg">
+  <img src="assets/lab/hero.svg" width="100%" alt="XIAORE / AGENT LAB — Xiaore. Engineering Intelligence. AI Agents / LLM Systems. A rotating wireframe sphere with orbital particles.">
+</picture>
+
+<h2>About Me</h2>
+
+<p>I’m <a href="https://github.com/xiaore-dev"><strong>Xiaore</strong></a>. I explore AI engineering and software engineering. I’m especially interested in how LLM-based agents choose tools and how to test those choices.</p>
+
+<picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="assets/lab/still/divider.svg">
+  <img src="assets/lab/divider.svg" width="100%" alt="">
+</picture>
+
+<h2>Intelligence Loop</h2>
+
+<p>In this conceptual loop, an agent observes the result of one action and uses it to decide what to do next.</p>
+
+<picture>
+  <source media="(prefers-reduced-motion: reduce) and (max-width: 640px)" srcset="assets/lab/still/loop-mobile.svg">
+  <source media="(prefers-reduced-motion: reduce)" srcset="assets/lab/still/loop.svg">
+  <source media="(max-width: 640px)" srcset="assets/lab/loop-mobile.svg">
+  <img src="assets/lab/loop.svg" width="100%" alt="Conceptual agent cycle: Perceive → Reason → Act → Observe → Loop → Perceive.">
+</picture>
+
+<h2>Technology Radar</h2>
+
+<p>I’m exploring agent architecture and LLM inference, from context engineering and RAG to tool calling with MCP. Software engineering connects these topics.</p>
+
+<picture>
+  <source media="(prefers-reduced-motion: reduce) and (max-width: 640px)" srcset="assets/lab/still/radar-mobile.svg">
+  <source media="(prefers-reduced-motion: reduce)" srcset="assets/lab/still/radar.svg">
+  <source media="(max-width: 640px)" srcset="assets/lab/radar-mobile.svg">
+  <img src="assets/lab/radar.svg" width="100%" alt="Exploration map: Agent Architecture, LLM Inference, Context Engineering, Tool Calling, MCP, RAG, and Software Engineering.">
+</picture>
+
+<h2>Development Environment</h2>
+
+<p>I use Python and TypeScript for implementation, Pydantic for data validation, and Playwright for browser tests.</p>
+
+<picture>
+  <source media="(prefers-reduced-motion: reduce) and (max-width: 640px)" srcset="assets/lab/still/environment-mobile.svg">
+  <source media="(prefers-reduced-motion: reduce)" srcset="assets/lab/still/environment.svg">
+  <source media="(max-width: 640px)" srcset="assets/lab/environment-mobile.svg">
+  <img src="assets/lab/environment.svg" width="100%" alt="Python and TypeScript for implementation, Pydantic for validation, and Playwright for browser tests.">
+</picture>
+
+<h2>Digital Garden</h2>
+
+<p>My personal blog lives at <a href="https://xiaore.xyz">xiaore.xyz</a>.</p>
+
+<a href="https://xiaore.xyz">
+<picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="assets/lab/still/garden.svg">
+  <img src="assets/lab/garden.svg" width="100%" alt="Open Xiaore’s personal blog at xiaore.xyz.">
+</picture>
+</a>
+
+<picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="assets/lab/still/footer.svg">
+  <img src="assets/lab/footer.svg" width="100%" alt="Build. Learn. Iterate.">
+</picture>
+</article></main>
+<script>
+const theme = document.querySelector('#theme');
+theme.addEventListener('change', () => { document.documentElement.dataset.theme = theme.value; });
+const still = document.querySelector('#still');
+const frames = document.querySelectorAll('picture source, picture img');
+for (const frame of frames) {
+  const attr = frame.tagName === 'IMG' ? 'src' : 'srcset';
+  frame.dataset.original = frame.getAttribute(attr);
+}
+still.addEventListener('change', () => {
+  for (const frame of frames) {
+    const attr = frame.tagName === 'IMG' ? 'src' : 'srcset';
+    const original = frame.dataset.original;
+    const fixed = original.includes('/still/') ? original : original.replace('assets/lab/', 'assets/lab/still/');
+    frame.setAttribute(attr, still.checked ? fixed : original);
+  }
+});
+</script></body></html>

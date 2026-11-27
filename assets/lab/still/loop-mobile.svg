@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="277" viewBox="0 0 420 277" role="img" aria-labelledby="title desc">
+<title id="title">Agent feedback loop</title>
+<desc id="desc">Perceive, reason, act, observe, and loop back to the next perception. Concept diagram.</desc>
+<rect x=".5" y=".5" width="419" height="276" fill="#FFFFFF" stroke="#D7E0EA" />
+<path transform="translate(73 69)" d="M0 0h317q15 0 15 15v87q0 15 -15 15h-360q-15 0 -15 -15v-87q0 -15 15 -15h43" stroke="#D7E0EA" stroke-width="1.6" fill="none" />
+<path transform="translate(145 69) rotate(0)" d="M-4 -3.5 0 0 -4 3.5" stroke="#64748B" stroke-width="1.4" fill="none" />
+<path transform="translate(282 69) rotate(0)" d="M-4 -3.5 0 0 -4 3.5" stroke="#64748B" stroke-width="1.4" fill="none" />
+<path transform="translate(405 131) rotate(90)" d="M-4 -3.5 0 0 -4 3.5" stroke="#64748B" stroke-width="1.4" fill="none" />
+<path transform="translate(210 186) rotate(180)" d="M-4 -3.5 0 0 -4 3.5" stroke="#64748B" stroke-width="1.4" fill="none" />
+<path transform="translate(15 124) rotate(270)" d="M-4 -3.5 0 0 -4 3.5" stroke="#64748B" stroke-width="1.4" fill="none" />
+<g transform="translate(73 69)" fill="#009F91">
+<circle r="4" />
+</g>
+<g transform="translate(73 69)">
+<circle r="33" fill="#F6F8FA" stroke="#D7E0EA" />
+<circle r="33" fill="#009F91" fill-opacity=".08" stroke="#009F91" stroke-width="2" opacity="0" />
+<g fill="none" color="#009F91" stroke="#009F91" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M-23 0Q0 -29 23 0Q0 29 -23 0Z" /><circle r="8.5" /><circle r="3" fill="currentColor" stroke="none" /></g>
+<text y="-42" text-anchor="middle" fill="#64748B" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="12" letter-spacing="1.2">01</text>
+<text y="59" text-anchor="middle" fill="#182433" font-family="Inter,Helvetica Neue,Arial,sans-serif" font-size="21" font-weight="600">Perceive</text>
+</g>
+<g transform="translate(210 69)">
+<circle r="33" fill="#F6F8FA" stroke="#D7E0EA" />
+<circle r="33" fill="#2457E6" fill-opacity=".08" stroke="#2457E6" stroke-width="2" opacity="0" />
+<g fill="none" color="#2457E6" stroke="#2457E6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M0 -21 19 -11 19 10 0 21 -19 10 -19 -11Z M-19 -11 0 0 19 -11 M0 0V21 M-9 -16 10 -5V5L0 11 -10 5V-5L9 -16" /></g>
+<text y="-42" text-anchor="middle" fill="#64748B" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="12" letter-spacing="1.2">02</text>
+<text y="59" text-anchor="middle" fill="#182433" font-family="Inter,Helvetica Neue,Arial,sans-serif" font-size="21" font-weight="600">Reason</text>
+</g>
+<g transform="translate(347 69)">
+<circle r="33" fill="#F6F8FA" stroke="#D7E0EA" />
+<circle r="33" fill="#2457E6" fill-opacity=".08" stroke="#2457E6" stroke-width="2" opacity="0" />
+<g fill="none" color="#2457E6" stroke="#2457E6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M-20 -14H-5L10 0 -5 14H-20L-5 0Z" fill="currentColor" stroke="none" /><path d="M0 -14H9L24 0 9 14H0L14 0Z" /></g>
+<text y="-42" text-anchor="middle" fill="#64748B" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="12" letter-spacing="1.2">03</text>
+<text y="59" text-anchor="middle" fill="#182433" font-family="Inter,Helvetica Neue,Arial,sans-serif" font-size="21" font-weight="600">Act</text>
+</g>
+<g transform="translate(281 186)">
+<circle r="33" fill="#F6F8FA" stroke="#D7E0EA" />
+<circle r="33" fill="#009F91" fill-opacity=".08" stroke="#009F91" stroke-width="2" opacity="0" />
+<g fill="none" color="#009F91" stroke="#009F91" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle r="18.5" /><circle r="10.3" stroke-dasharray="31 6 16 12" /><path d="M0 -24V-16 M0 16V24 M-24 0H-16 M16 0H24" /><circle r="3" fill="currentColor" stroke="none" /></g>
+<text y="-42" text-anchor="middle" fill="#64748B" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="12" letter-spacing="1.2">04</text>
+<text y="59" text-anchor="middle" fill="#182433" font-family="Inter,Helvetica Neue,Arial,sans-serif" font-size="21" font-weight="600">Observe</text>
+</g>
+<g transform="translate(137 186)">
+<circle r="33" fill="#F6F8FA" stroke="#D7E0EA" />
+<circle r="33" fill="#2457E6" fill-opacity=".08" stroke="#2457E6" stroke-width="2" opacity="0" />
+<g fill="none" color="#2457E6" stroke="#2457E6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M-17 -2a17 17 0 0 1 28-11l6 6m0-10v10H7 M17 2a17 17 0 0 1-28 11l-6-6m0 10V7h10" /></g>
+<text y="-42" text-anchor="middle" fill="#64748B" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="12" letter-spacing="1.2">05</text>
+<text y="59" text-anchor="middle" fill="#182433" font-family="Inter,Helvetica Neue,Arial,sans-serif" font-size="21" font-weight="600">Loop</text>
+</g>
+</svg>

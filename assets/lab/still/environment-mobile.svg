@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="224" viewBox="0 0 420 224" role="img" aria-labelledby="title desc">
+<title id="title">Development environment</title>
+<desc id="desc">Python and TypeScript languages, Pydantic for validation, and Playwright for browser tests.</desc>
+<rect x=".5" y=".5" width="419" height="223" fill="#FFFFFF" stroke="#D7E0EA" />
+<path d="M0 112h420" stroke="#D7E0EA" />
+<path d="M210 0v224" stroke="#D7E0EA" />
+<g transform="translate(0 0)">
+<g transform="translate(39 30)" fill="none" stroke="#182433" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M-14 -13h13l6 6h10 M-15 -2h8l6 6h14 M-15 10h5l5 5h9" /><circle cx="15" cy="-7" r="3.1" fill="#2457E6" stroke="none" /></g>
+<path d="M77 30h110" stroke="#D7E0EA" stroke-width="1" />
+<path d="M77 30h110" stroke="#009F91" stroke-width="2" stroke-dasharray="16 32" opacity="0" />
+<text x="21" y="71" font-family="Inter,Helvetica Neue,Arial,sans-serif" font-size="24" font-weight="600" fill="#182433">Python</text>
+<text x="22" y="93" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="14" fill="#64748B">Language</text></g>
+<g transform="translate(210 0)">
+<g transform="translate(39 30)" fill="none" stroke="#182433" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M-12 -11l-8 11 8 11 M12 -11l8 11 -8 11 M-5 -7H6 M.5 -7V8" /><path d="M-3 9h7" stroke="#2457E6" /></g>
+<path d="M77 30h110" stroke="#D7E0EA" stroke-width="1" />
+<path d="M77 30h110" stroke="#009F91" stroke-width="2" stroke-dasharray="16 32" opacity="0" />
+<text x="21" y="71" font-family="Inter,Helvetica Neue,Arial,sans-serif" font-size="24" font-weight="600" fill="#182433">TypeScript</text>
+<text x="22" y="93" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="14" fill="#64748B">Language</text></g>
+<g transform="translate(0 112)">
+<g transform="translate(39 30)" fill="none" stroke="#182433" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M-5 -16h-8v10q0 5 -6 6 6 1 6 6v10h8 M5 -16h8v10q0 5 6 6 -6 1 -6 6v10H5" /><path d="M-6 0l4 4 8-9" stroke="#2457E6" /></g>
+<path d="M77 30h110" stroke="#D7E0EA" stroke-width="1" />
+<path d="M77 30h110" stroke="#009F91" stroke-width="2" stroke-dasharray="16 32" opacity="0" />
+<text x="21" y="71" font-family="Inter,Helvetica Neue,Arial,sans-serif" font-size="24" font-weight="600" fill="#182433">Pydantic</text>
+<text x="22" y="93" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="14" fill="#64748B">Validation</text></g>
+<g transform="translate(210 112)">
+<g transform="translate(39 30)" fill="none" stroke="#182433" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M-11 -14v-3h28v22h-3 M-17 -10h29v24h-29Z M-16 -4h27" /><path d="m-5 0 7 4-7 5Z" fill="#2457E6" stroke="none" /></g>
+<path d="M77 30h110" stroke="#D7E0EA" stroke-width="1" />
+<path d="M77 30h110" stroke="#009F91" stroke-width="2" stroke-dasharray="16 32" opacity="0" />
+<text x="21" y="71" font-family="Inter,Helvetica Neue,Arial,sans-serif" font-size="24" font-weight="600" fill="#182433">Playwright</text>
+<text x="22" y="93" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="14" fill="#64748B">Browser tests</text></g>
+</svg>
