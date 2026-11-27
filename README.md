@@ -2,12 +2,16 @@
   <source media="(prefers-reduced-motion: reduce) and (max-width: 640px)" srcset="assets/lab/still/hero-mobile.svg">
   <source media="(prefers-reduced-motion: reduce)" srcset="assets/lab/still/hero.svg">
   <source media="(max-width: 640px)" srcset="assets/lab/hero-mobile.svg">
-  <img src="assets/lab/hero.svg" width="100%" alt="XIAORE / AGENT LAB. Xiaore — Engineering Intelligence. Two folded blue and teal ribbons weave an X around a pulsing aperture. AI Agents / LLM Systems.">
+  <img src="assets/lab/hero.svg" width="100%" alt="XIAORE / AGENT LAB. Xiaore — Engineering Intelligence. Blue and teal ribbons form a kinetic X around a pulsing core, with particles passing in front and behind. AI Agents / LLM Systems.">
 </picture>
 
-<p>I’m <a href="https://github.com/xiaore-dev"><strong>Xiaore</strong></a>. I explore the engineering behind AI agents, from how language models choose tools to how we test those choices.</p>
+<p>I’m <a href="https://github.com/xiaore-dev"><strong>Xiaore</strong></a>. I explore how AI agents choose tools and how to test those decisions.</p>
 
-<p><a href="#intelligence-loop">01&nbsp;Loop</a> &ensp; <a href="#technology-radar">02&nbsp;Radar</a> &ensp; <a href="#development-environment">03&nbsp;Tools</a> &ensp; <a href="https://xiaore.xyz">04&nbsp;xiaore.xyz&nbsp;↗</a></p>
+<p>
+  <a href="#intelligence-loop"><img src="assets/lab/nav/loop.svg" width="77" height="38" alt="01 · Intelligence Loop"></a>
+  <a href="#technology-radar"><img src="assets/lab/nav/radar.svg" width="84" height="38" alt="02 · Technology Radar"></a>
+  <a href="https://xiaore.xyz"><img src="assets/lab/nav/garden.svg" width="111" height="38" alt="03 · Digital Garden — xiaore.xyz"></a>
+</p>
 
 <picture>
   <source media="(prefers-reduced-motion: reduce)" srcset="assets/lab/still/divider.svg">
@@ -19,7 +23,7 @@
   <source media="(prefers-reduced-motion: reduce) and (max-width: 640px)" srcset="assets/lab/still/loop-mobile.svg">
   <source media="(prefers-reduced-motion: reduce)" srcset="assets/lab/still/loop.svg">
   <source media="(max-width: 640px)" srcset="assets/lab/loop-mobile.svg">
-  <img src="assets/lab/loop.svg" width="100%" alt="01 · Intelligence Loop. Concept study. The signal passes through Perceive, Reason, Act, Observe, and Loop, then returns to Perceive.">
+  <img src="assets/lab/loop.svg" width="100%" alt="01 · Intelligence Loop. Concept study. An input enters the chip. Its circuits carry the signal through Perceive, Reason, Act, and Observe. A core pulse sends the result along Loop, back to Perceive.">
 </picture>
 
 <a name="technology-radar"></a>
@@ -30,18 +34,10 @@
   <img src="assets/lab/radar.svg" width="100%" alt="02 · Technology Radar. Seven research directions: Agent Architecture, LLM Inference, Context Engineering, Tool Calling, MCP, RAG, and Software Engineering.">
 </picture>
 
-<a name="development-environment"></a>
-<picture>
-  <source media="(prefers-reduced-motion: reduce) and (max-width: 640px)" srcset="assets/lab/still/environment-mobile.svg">
-  <source media="(prefers-reduced-motion: reduce)" srcset="assets/lab/still/environment.svg">
-  <source media="(max-width: 640px)" srcset="assets/lab/environment-mobile.svg">
-  <img src="assets/lab/environment.svg" width="100%" alt="03 · Development Environment. Python and TypeScript for implementation, Pydantic for validation, and Playwright for browser testing.">
-</picture>
-
 <a href="https://xiaore.xyz">
 <picture>
   <source media="(prefers-reduced-motion: reduce)" srcset="assets/lab/still/garden.svg">
-  <img src="assets/lab/garden.svg" width="100%" alt="04 · Digital Garden. Open Xiaore’s personal blog at xiaore.xyz.">
+  <img src="assets/lab/garden.svg" width="100%" alt="03 · Digital Garden. Open Xiaore’s personal blog at xiaore.xyz.">
 </picture>
 </a>
 

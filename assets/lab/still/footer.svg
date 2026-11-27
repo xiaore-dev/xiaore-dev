@@ -3,7 +3,7 @@
   <rect width="920" height="104" fill="#F6F8FA" />
   <path d="M0 .5h920" stroke="#D7E0EA" />
   <g font-family="Arial,Helvetica,sans-serif" font-size="52" font-weight="700" letter-spacing="-2.7">
-    <text x="25" y="70" fill="#182433">Build. Learn. <tspan fill="#2457E6">Iterate.</tspan></text>
+    <text x="32" y="70" fill="#182433">Build. Learn. <tspan fill="#2457E6">Iterate.</tspan></text>
   </g>
   <g transform="translate(784 35) skewX(-25)">
     <path d="M0 0h12v34H0z" fill="#2457E6" />

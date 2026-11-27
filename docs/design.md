@@ -1,65 +1,71 @@
-# XIAORE / AGENT LAB · 第二期
+# XIAORE / AGENT LAB · 第三期
 
-[完整动态预览](../preview.html) · [桌面截图](screenshots/desktop.png) · [手机截图](screenshots/mobile.png) · [两代封面对照](screenshots/covers.png)
+[离线动态预览](../preview.html) · [桌面截图](screenshots/desktop.png) · [手机截图](screenshots/mobile.png) · [芯片时序实测](screenshots/loop-sequence.png) · [V2 与 V3 封面对照](screenshots/covers.png)
 
-## 封面选型
+## 从 V2 到 V3
 
-先把三个候选装置画成同尺度的动态小样，观察它们如何起伏、聚合，以及运动停止后是否仍然容易辨认。[三个动态构图小样](core-studies.svg)
+切割 X 字标、蓝青折带和浅底构图延续第二期。第三期把重心放在运动的因果关系上。访客可以在封面看到粒子绕到带面背后，在芯片上跟随同一个输入直到反馈返回，在雷达上看到扫描前缘经过某个方向后发生的回响。
 
-| 构图 | 运动方式 | 小尺寸下的取舍 |
-| --- | --- | --- |
-| A · Phase Loom，相位织机 | 蓝青折带绕同一孔隙交错，前后两层各有相位 | 四个伸出的带端形成 Xiaore 的首字母 X。选用此案，静帧也能承担个人标记的作用 |
-| B · Axial Stack，悬浮晶片 | 五层薄片沿竖轴分开、合拢，透出中央晶孔 | 层间空隙容易读懂，收拢后外形接近常见芯片 |
-| C · Branch Field，分叉粒子场 | 两簇粒子沿枝状路径从中心发散，再向中心收束 | 聚散时的节奏鲜明，窄屏下外围细枝容易合成一团 |
+| 部位 | 本期调整 |
+| --- | --- |
+| Phase Loom | 为折带计算两个完整的三维形态，经透视投影后连续插值。相邻面片共享顶点，开口和截面随曲率一起变化。内外两条轨道把粒子分在带面之前、之后绘制，粒子的大小随深度改变。 |
+| 01 · Intelligence Loop | 输入接线、片内三级电路、晶核、输出和反馈首尾相接。左侧阶段名随同一张时序表推进，完成的电路暂时保留亮度，便于回看信号走过的路径。它是一项概念研究。 |
+| 02 · Technology Radar | 保留倾斜三层观测面，为扫描前缘加入渐弱的扇形尾迹。节点在对应角度收到扫描时产生外圈回响，随后向下层传递。七个方向位于同一模型半径。 |
+| 导航与编排 | 简介压成一句对研究兴趣的说明。三个可点击的索引签分别通往 Loop、Radar 和博客。开发环境及其导航、图形和生成逻辑已移除。Garden 接续为第 03 章。 |
+| 03 · Digital Garden 与页脚 | 继续使用折叶电路插画和 **Build. Learn. Iterate.**。花园的分叉传输与页脚的色块回响改用 12 秒周期。桌面主要起笔线约在图宽的 1/28 处。 |
 
-## V1 → V2
+### 运动的层次
 
-| 部位 | V1 | V2 |
-| --- | --- | --- |
-| 封面 | 蓝色经纬球与飞行轨迹 | 两条带面围住一枚晶核。按深度绘制明暗面和切面，独立轨道、碎粒与脉冲参与同一构图 |
-| 字标 | 整行粗体文字叠加瞬时错位 | 单独绘制首字母 X，在交点嵌入一小段蓝色。低频色偏只经过狭窄的字面切片 |
-| 阅读顺序 | 五组标题、说明和插图 | 作者短介和可点击的页内目录。章节号进入图版本身，控制面和观察面交替左右排布 |
-| 01 · Intelligence Loop | 五枚并列的流程图标 | 五个有序模块与立体控制核交换脉冲，回传线路闭合。「Concept study」标明其概念性质 |
-| 02 · Technology Radar | 俯视圆盘与外部引线 | 三层倾斜的观测面共享投影，扫描扇面到达节点后触发跨层传输。A–G 对应七项研究方向 |
-| 03 · Development Environment | 四个独立图标单元 | Python、TypeScript、Pydantic 和 Playwright 排成两条紧凑的母线，分别标出语言和工具 |
-| 04 · Digital Garden | 两个独立光点经过蓝色折叶 | 同一波信号依次到达三个分叉，分向五片叶子。整幅图和目录中的域名都可进入博客 |
+12 秒承担一次信号传播，24 秒承担折带形变和雷达扫描，36 秒承担外轨进动和低频字面错位。雷达下层的伴星沿反向轨道用 48 秒走完一周。各 SVG 可独立加载；需要严格衔接的芯片阶段都在同一张图内计时。
 
-持续使用冷白、科技蓝和科技青。大字与实体色块提供第一层轮廓，投影和局部拓扑交代前后关系，细线承担轨迹与索引。标题色偏只占很小面积。雷达七个方向位于相同的模型半径，透视造成的屏幕距离差不承载技术评分。页尾沿用 **Build. Learn. Iterate.**。
+| 芯片周期 | 画面事件 |
+| --- | --- |
+| 0–2.2 秒 | Perceive 接收输入，信号进入芯片的第一个触点。 |
+| 2.2–4.4 秒 | Reason 点亮第一段片内电路。 |
+| 4.4–6.4 秒 | Act 接续第二段电路。 |
+| 6.4–8.4 秒 | Observe 经第三段将信号送到晶核。 |
+| 8.4–9.5 秒 | 三段走线保持充能，晶核释放一次向外扩散的脉冲。 |
+| 9.5–12 秒 | 输出先沿片内支路到达边缘，10.4 秒后进入外围反馈线，回到同一感知端口。 |
 
-## 预览与维护
+## 预览与验收
 
-在浏览器打开根目录的 `preview.html` 即可离线播放。本地正文外框最大宽度为 900 px。将窗口收窄到 640 px 或以下会选用手机版核心、控制面、雷达和技术矩阵。选择 **Dark** 可检查深色背景，勾选 **Still frames** 或启用系统「减少动态效果」可查看静帧。
+用浏览器直接打开根目录的 `preview.html`。收窄窗口到 640 px 或以下可切换手机构图。**Theme** 切换阅读背景，**Still frames** 切换静帧。启用系统「减少动态效果」时会自动选用静态图版。
+
+| 检查 | 本次结果 |
+| --- | --- |
+| 正文布局和交互 | Chrome 158 下，1280、375 和 320 px 视口均无横向溢出。两个索引签能定位到对应章节，Garden 签和博客插画均可打开博客地址。 |
+| 真实图片播放 | 六个动态组件以外链 `<img>` 形式加载，浏览器取帧比较均有像素变化。启用系统减少动态效果后，六张静帧在相同检查中均为零变化。三个导航签本身为静态 SVG。计入导航，单一屏宽选用的常规图形合计约 136 KB，静帧约 91 KB，均按未压缩文件大小计算。 |
+| 封面形变 | 折带一个顶点的横坐标在 0、6、12、24 秒分别约为 155.9、148.6、141.3、155.9，完整周期后回到起点。 |
+| 芯片时序 | 以 0.5 秒间距检查周期，并额外定位关键时刻。1.25、3.25、5.25、7.25 秒分别只有输入或对应片内支路在传播。8.75 秒各段传输暂停，晶核波前可见。9.75 和 11.25 秒分别进入输出和反馈。六段路径相邻端点的投影接缝误差均为 0 CSS px。 |
+| 雷达相位 | 按七个节点的实际方位逐一定位扫描前缘，交会时对应节点均产生回响，信号沿层间路径传播，约 1.2 秒后到达下层。 |
+
+[四个关键时刻的局部截图](screenshots/loop-sequence.png)来自浏览器实际渲染，图上秒数是动画周期内的取样时刻。
+
+### GitHub 兼容性
+
+README 使用原生链接、具名锚点、`<picture>` 和后备 `<img>`。索引签的点击区域由外层链接提供，SVG 只负责绘制；图片各有说明目的地的替代文字。所有运行所需的图形、字体回退和动画样式均可在本地解析。无法插值 SVG 路径的客户端仍可绘制元素自带的静态轮廓。[GitHub 响应式图片示例](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/quickstart-for-writing-on-github#example-of-a-responsive-image) · [GitHub 自定义锚点](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#custom-anchors) · [SVG 图片模式](https://developer.mozilla.org/en-US/docs/Web/SVG/Guides/SVG_as_an_image)
+
+已核对 GitHub 当前公开 V2 的实际 HTML。站点保留窄屏和减少动态效果条件、相对路径后备图、章节锚点与包裹图片的博客链接。V3 沿用这些结构。此次截图和动画测量来自本地浏览器，V3 上线后的站点样式和图片代理效果仍待发布后确认。[公开仓库](https://github.com/xiaore-dev/xiaore-dev)
+
+## 恢复 V2
+
+[V2 恢复包](archive/xiaore-agent-lab-v2.zip)来自改动前已有的提交 `bddd411f1690e0a70ae0c9374952fd0eeac7e4dd`。解压到一个空目录，打开其中的 `preview.html` 即可使用完整 V2。包内含该版 README、全部运行图版、静帧、生成脚本、设计说明和原截图。归档中 32 个文件已与原提交逐一校验，并已在独立目录重建，输出逐字节一致。
+
+## 文件与维护
 
 | 位置 | 用途 |
 | --- | --- |
-| `README.md` | 作者介绍、章节目录、图片选择、替代文字和博客链接 |
-| `scripts/draw_hero.py` | X 形装置的投影、着色、遮挡、运动与两版封面排印 |
-| `scripts/draw_diagrams.py` | 运行循环、研究方向和开发环境的布局与动画 |
-| `assets/lab/` | 动态图版。分割线、花园和页脚直接在各自的 SVG 内编辑 |
-| `assets/lab/still/` | 由同一套几何与文字生成的无动画图版 |
-| `scripts/build_preview.py` | 生成静帧，再将 README 正文嵌入本地预览 |
-| `docs/core-studies.svg`、`docs/screenshots/` | 三个构图小样与供审阅的 PNG，访客打开个人主页时无需下载 |
+| `README.md`、`assets/lab/nav/` | 个人简介、索引签、跳转地址及图版替代文字 |
+| `scripts/draw_hero.py` | 三维带面、轨道、遮挡顺序及桌面和手机构图 |
+| `scripts/draw_diagrams.py` | 芯片时序、片内电路、雷达投影及节点响应 |
+| `assets/lab/`、`assets/lab/still/` | 主图版与无动画副本。花园、分割线和页脚直接编辑各自的动态 SVG |
+| `scripts/build_preview.py`、`preview.html` | 从图形属性生成静帧，用同一份 README 正文生成离线预览 |
+| `docs/screenshots/`、`docs/archive/` | 审阅图与独立恢复包，浏览主页时无需下载 |
 
-在仓库根目录依次运行以下命令即可重建。只改 README 或手绘 SVG 时，运行最后一条即可。截图记录的是本次审阅版本，修改版面后需重新截图。
+在仓库根目录重新出图只需要 Python 3 标准库。只改 README 或手绘图形时，运行最后一条命令即可。截图与时序记录对应本次验收版本。
 
 ```sh
 python3 scripts/draw_hero.py
 python3 scripts/draw_diagrams.py
 python3 scripts/build_preview.py
 ```
-
-脚本只需要 Python 标准库。静帧保留图形元素的底色、位置、轮廓和文字，移除动画与标有 `data-motion-only="true"` 的图层。这样可以单独检查暗色环境中的浅色图版、移动端排版和无动态构图。
-
-## GitHub 渲染边界
-
-正文使用 GitHub 支持的 HTML、仓库相对路径和图片替代文字。图版通过 `<picture>` 和后备 `<img>` 选择。SVG 在图片上下文中播放，动画、路径与样式均在文件内部。页内链接和博客入口由 README 的原生链接承担。只有本地预览外壳使用脚本来切换主题、静帧。[GitHub 响应式图片示例](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/quickstart-for-writing-on-github#example-of-a-responsive-image) · [GitHub 自定义锚点](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#custom-anchors) · [浏览器的 SVG 图片模式](https://developer.mozilla.org/en-US/docs/Web/SVG/Guides/SVG_as_an_image)
-
-截图取自本地 Chrome 中的 README 正文。GitHub 站点的样式、图片代理缓存以及不同客户端的动画支持仍以发布后的实际页面为准。
-
-已读取 GitHub 当前发布的同名仓库 HTML。站点保留了 640 px 窄屏条件、减少动态效果条件、两者的组合条件和后备图片，并将相对路径重写为仓库的 raw URL。正文链接和包裹插画的博客链接也都得到保留。V2 沿用这一图片结构。[当前公开仓库](https://github.com/xiaore-dev/xiaore-dev)
-
-## 本次验收
-
-- 在 Chrome 158 的图片上下文中，对七个可见组件分别取帧比较。常规模式下七个组件均有可测的帧间变化，模拟系统减少动态效果后，七个组件都选中静帧，取样期间像素保持一致。
-- 已检查 1280、375 和 320 px 视口的滚动宽度、图片加载、章节定位与博客入口。四组窄屏图版正确切换。预览中的深浅主题和手动静帧均可恢复到原设置。
-- 七个动态组件合计约 126.5 KB，静帧合计约 114 KB，均按源文件字节数计算。已解析 22 张组件 SVG 及构图小样，检查所有内部引用与 README 图片路径。连续重建得到相同的输出。

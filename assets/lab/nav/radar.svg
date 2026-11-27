@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="84" height="38" viewBox="0 0 84 38" role="img" aria-labelledby="title">
+  <title id="title">02 · Radar</title>
+  <rect width="84" height="38" fill="#F6F8FA"/>
+  <path d="M0 37.5h84" stroke="#D7E0EA"/>
+  <path d="M6 37h14" stroke="#2457E6" stroke-width="2"/>
+  <text x="7" y="15" fill="#2457E6" font-family="ui-monospace,Consolas,monospace" font-size="10" font-weight="600">02</text>
+  <text x="25" y="25" fill="#182433" font-family="Inter,Helvetica Neue,Arial,sans-serif" font-weight="600" font-size="16" letter-spacing="-.4">Radar</text>
+</svg>

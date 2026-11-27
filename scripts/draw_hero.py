@@ -1,4 +1,4 @@
-"""Draw the two editions of Phase Loom, Xiaore's kinetic X sculpture."""
+"""Draw two art-directed sizes of the Phase Loom with the Python standard library."""
 from math import cos, cosh, hypot, pi, radians, sin, sqrt, tanh
 from pathlib import Path
 
@@ -7,6 +7,8 @@ PAPER, INK, BLUE, TEAL = "#F6F8FA", "#182433", "#2457E6", "#009F91"
 MUTED, RULE = "#53677A", "#D7E0EA"
 SANS = "Inter,Helvetica Neue,Arial,sans-serif"
 MONO = "ui-monospace,SFMono-Regular,Consolas,monospace"
+# In the local orbital plane, positive y is in front of the aperture.
+ORBITS = [("outer", -15, 191, 35, TEAL, 24), ("inner", 41, 138, 40, BLUE, 12)]
 
 
 def point(vertex):
@@ -19,176 +21,158 @@ def path(vertices, close=False):
 
 
 def tint(dark, light, weight):
-    a = bytes.fromhex(dark)
-    b = bytes.fromhex(light)
-    return "#" + "".join(f"{round(x+(y-x)*weight):02x}" for x, y in zip(a, b))
+    a, b = bytes.fromhex(dark), bytes.fromhex(light)
+    return "#" + "".join(f"{round(x + (y-x)*weight):02x}" for x, y in zip(a, b))
 
 
-def surface(t, across, loom, under=False):
-    """Project a cut, twisting strip around an elongated elliptical spine."""
-    angle = radians(-38 if loom == 0 else 39)
-    radius, opening = (151, 28) if loom == 0 else (139, 26)
-    twist = .38 + .90 * sin(t + loom * 1.7) + .40 * sin(2*t - .7)
-    width = 15.5 + 5.5 * cos(t - .85)
-    # The planar normal is perpendicular to the elliptical spine's tangent.
-    bend = 2.2
+def surface(t, across, loom, phase, below=0):
+    """One material point on the strip, projected through a 520-unit camera."""
+    # The spine bends while its local cross-section rolls. Shared vertices of
+    # neighboring facets take identical positions in both breathing poses.
+    side = 1 if loom == 0 else -1
+    angle = radians((-38 if loom == 0 else 39) + 2.2*side*phase)
+    radius = 145 if loom == 0 else 131
+    opening = (33 if loom == 0 else 29) + phase * side * 4
+    bend = 2.4
     spine_x = opening*cos(t) + (radius-opening)*tanh(bend*cos(t))/tanh(bend)
     speed = opening + bend*(radius-opening)/(tanh(bend)*cosh(bend*cos(t))**2)
-    nx, ny = opening*cos(t), speed*sin(t)
+    # The spine has a shallow bend; use its actual tangent for the lip.
+    bend_y = (3 + 2*phase)*sin(2*t+.2)
+    nx = opening*cos(t) + 2*(3 + 2*phase)*cos(2*t+.2)
+    ny = speed*sin(t)
     length = hypot(nx, ny)
-    normal = across * width * cos(twist)
-    x = spine_x + normal*nx/length
-    y = opening*sin(t) + normal*ny/length
-    z = 24*sin(t) + 14*sin(2*t + loom*.8) + across*width*sin(twist)
-    z += (-5 if under else 0) + (9 if loom == 0 else -9)
-    return (x*cos(angle) - y*sin(angle) + .10*z,
-            x*sin(angle) + y*cos(angle) - .44*z, z)
+    twist = .53 + 1.03*sin(t + loom*1.55) + .63*sin(2*t-.8) + phase*.33*cos(2*t+.4)
+    width = (17 if loom == 0 else 16) + 5.5*cos(t-.85)
+    offset = across*width*cos(twist)
+    x = spine_x + offset*nx/length
+    y = opening*sin(t) + offset*ny/length + bend_y
+    z = 28*sin(t) + (17+phase*6)*sin(2*t+loom*.7) + across*width*sin(twist)
+    z += 6*side - below
+    projection = 520/(520-z)
+    return ((x*cos(angle) - y*sin(angle) + .1*z)*projection,
+            (x*sin(angle) + y*cos(angle) - .4*z)*projection, z)
 
 
-def ribbon_faces(loom):
-    count = 48
-    # Saw cuts at the outer tips expose the thickness of the optical bands.
-    gap = .76 if loom == 1 else 0
-    angles = [gap/2 + (2*pi-gap)*i/count for i in range(count+1)]
-    faces = []
-    for i, (start, end) in enumerate(zip(angles, angles[1:])):
-        a, b = surface(start,-1,loom), surface(end,-1,loom)
-        c, d = surface(end,1,loom), surface(start,1,loom)
-        # Both faces use a cold, highly directional satin reflection.
-        along = [b[j]-a[j] for j in range(3)]
-        across = [d[j]-a[j] for j in range(3)]
-        vx = along[1]*across[2]-along[2]*across[1]
-        vy = along[2]*across[0]-along[0]*across[2]
-        vz = along[0]*across[1]-along[1]*across[0]
-        shine = abs((-.38*vx-.53*vy+.76*vz)/sqrt(vx*vx+vy*vy+vz*vz))
-        if loom == 0:
-            fill = tint("102777","8dbbff",.06+.91*shine**2.6)
-            edge = "#142e83"
-        else:
-            fill = tint("0b5a66","b3eee2",.02+.96*shine**2.2)
-            edge = "#165c63"
-        fragment = []
-        for side in (-1,1):
-            rim = [surface(start,side,loom),surface(end,side,loom),
-                   surface(end,side,loom,True),surface(start,side,loom,True)]
-            fragment.append(f'<path d="{path(rim,True)}" fill="{edge}" stroke="{edge}" stroke-width=".5"/>')
-        fragment.append(f'<path d="{path([a,b,c,d],True)}" fill="{fill}" stroke="{fill}" stroke-width=".65"/>')
-        # Two longitudinal facets pick up the hard and soft reflections of a
-        # pressed metal edge. They follow the surface all the way to the cut.
-        for lo,hi,finish in [(-1,-.80,"192f5a"),(.49,.79,"ffffff")]:
-            facet = [surface(start,lo,loom),surface(end,lo,loom),surface(end,hi,loom),surface(start,hi,loom)]
-            lacquer = tint(fill[1:],finish,.49 if hi>0 else .38)
-            fragment.append(f'<path d="{path(facet,True)}" fill="{lacquer}" stroke="{lacquer}" stroke-width=".4"/>')
-        fragment.append(f'<path d="{path([a,b])} {path([d,c])}" fill="none" stroke="#edf7ff" stroke-opacity=".75" stroke-width=".8"/>')
-        # Sparse triangular facets carry the visible topology across the skin.
-        if i % 3 == 0:
-            fragment.append(f'<path d="{path([a,d,c])}" stroke="{edge}" stroke-opacity=".38" stroke-width=".7" fill="none"/>')
-        if gap and i in (0,count-1):
-            t = start if i == 0 else end
-            cap = [surface(t,-1,loom),surface(t,1,loom),surface(t,1,loom,True),surface(t,-1,loom,True)]
-            fragment.append(f'<path d="{path(cap,True)}" fill="{INK}" stroke="#ffffff" stroke-width=".65"/>')
-        z = sum(v[2] for v in (a,b,c,d))/4
-        faces.append((z, f'<g class="ribbon{loom}">'+"".join(fragment)+'</g>'))
-    return faces
+def ribbons():
+    faces, variations = [], []
+    for loom in range(2):
+        count = 40
+        gap = .69 if loom == 1 else 0
+        edge = "#123276" if loom == 0 else "#12575a"
+        dark, light = ("1335a4", "a4d0ff") if loom == 0 else ("116369", "b7f3df")
+        for i in range(count):
+            start, end = [gap/2 + (2*pi-gap)*j/count for j in (i,i+1)]
+            def section(lo, hi, below=0):
+                return [(start,lo,below),(end,lo,below),(end,hi,below),(start,hi,below)]
+            def layer(points, fill, width=".5", stroke=None):
+                # A single CSS morph interpolates every patch. The base d is
+                # also the complete still drawing in viewers without CSS d.
+                poses = [path([surface(t,a,loom,phase,b) for t,a,b in points], True)
+                         for phase in (1, -.75)]
+                name = f"f{len(variations)}"
+                variations.append(f"#{name}{{--pose:path('{poses[1]}')}}")
+                return (f'<path id="{name}" class="flex" d="{poses[0]}" fill="{fill}" '
+                        f'stroke="{stroke or fill}" stroke-width="{width}" stroke-linejoin="round"/>')
+            a, b, c, d = [surface(t,v,loom,1) for t,v,_ in section(-1,1)]
+            u = [b[j]-a[j] for j in range(3)]
+            v = [d[j]-a[j] for j in range(3)]
+            nx, ny, nz = u[1]*v[2]-u[2]*v[1], u[2]*v[0]-u[0]*v[2], u[0]*v[1]-u[1]*v[0]
+            shine = abs((-.36*nx-.52*ny+.77*nz)/sqrt(nx*nx+ny*ny+nz*nz))
+            fill = tint(dark, light, .06+.9*shine**2.3)
+            # Draw the thickness around each lip, then the satin face and an
+            # inset highlight. Depth ordering splits each loop at its crossings.
+            panels = []
+            for k in (-1,1):
+                panels.append(layer([(start,k,0),(end,k,0),(end,k,4),(start,k,4)],edge))
+            panels.append(layer(section(-1,1),fill))
+            panels.append(layer(section(.48,.73),tint(fill[1:],"ffffff",.49),".35"))
+            if gap and i in (0,count-1):
+                t = start if i==0 else end
+                panels.append(layer([(t,-1,0),(t,1,0),(t,1,4),(t,-1,4)],INK))
+            faces.append((sum(p[2] for p in (a,b,c,d))/4, "".join(panels)))
+    faces.append((-4, topology()))
+    faces.append((0, nucleus()))
+    return "".join(f for _,f in sorted(faces)), "\n".join(variations)
+
+
+def orbital_point(t, rx, ry):
+    # The packet grows as it approaches the observer. Sampling true anomaly
+    # preserves the change in apparent speed across the projected ellipse.
+    depth = .15*sin(t)
+    scale = 1/(1-depth)
+    return rx*cos(t)*scale, ry*sin(t)*scale, scale
+
+
+def orbital_styles():
+    styles = []
+    for name, _, rx, ry, _, duration in ORBITS:
+        frames = []
+        for step in range(49):
+            x,y,k = orbital_point(2*pi*step/48, rx,ry)
+            frames.append(f"{step/48*100:.3f}%{{transform:translate({x:.2f}px,{y:.2f}px) scale({k*k:.3f})}}")
+        styles.append(f"@keyframes {name}Flow{{{''.join(frames)}}}")
+        styles.append(f".{name}Packet{{animation:{name}Flow {duration}s linear infinite}}")
+    return "\n".join(styles)
 
 
 def orbit(foreground):
-    elements = []
-    for angle, rx, ry, color, name in [(-17,207,46,TEAL,"tiltA"),(52,152,48,BLUE,"tiltB")]:
-        d = (f"M{rx} 0A{rx} {ry} 0 0 1 {-rx} 0" if foreground
-             else f"M{-rx} 0A{rx} {ry} 0 0 1 {rx} 0")
-        dash = "7 141" if foreground and name == "tiltB" else "none"
-        elements.append(f'<g transform="rotate({angle})"><g class="{name}">'
-                        f'<path d="{d}" fill="none" stroke="{color}" stroke-width="{1.15 if foreground else .85}" '
-                        f'stroke-opacity="{.65 if foreground else .36}" stroke-dasharray="{dash}"/>'
-                        f'<path class="relay" d="{d}" fill="none" stroke="{color}" stroke-width="2.7" '
-                        f'pathLength="100" stroke-dasharray="3 97" stroke-dashoffset="26"/>'
-                        '</g></g>')
-    return "".join(elements)
-
-
-def particles():
-    pieces = []
-    for i in range(16):
-        # Each set of grains belongs to a cut tip of the corresponding band.
-        loom = i % 2
-        flank = -1 if (i//2)%2 else 1
-        axis = radians(-38 if loom == 0 else 39)
-        reach = flank*(145 + (i*13)%42)
-        cross = (i*23)%28 - 14
-        x, y = reach*cos(axis)-cross*sin(axis), reach*sin(axis)+cross*cos(axis)
-        color = BLUE if loom == 0 else TEAL
-        w = 1.4 + (i%3)*.7
-        dock_x = flank*(145 if loom == 0 else 133) - reach
-        dock_y = (i%3-1)*1.8 - cross
-        pieces.append(f'<g transform="translate({x:.1f} {y:.1f}) rotate({-38 if loom==0 else 39})">'
-                      f'<g class="grain" style="animation-delay:-{i*.39:.2f}s;--dx:{dock_x:.1f}px;--dy:{dock_y:.1f}px">'
-                      f'<rect x="{-w:.1f}" y="-1" width="{w*2:.1f}" height="{w:.1f}" fill="{color}" opacity=".8"/>'
-                      '</g></g>')
-    return "".join(pieces)
+    parts = []
+    for number, (name, tilt, rx, ry, color, duration) in enumerate(ORBITS):
+        start = 0 if foreground else pi
+        d = path([orbital_point(start+pi*j/36, rx, ry) for j in range(37)])
+        weight = 1.2 if foreground else 1
+        parts.append(f'<g transform="rotate({tilt})"><g class="{name}Plane">')
+        parts.append(f'<path d="{d}" fill="none" stroke="{color}" stroke-width="{weight}" opacity="{.58 if foreground else .33}"/>')
+        clip = "near" if foreground else "far"
+        parts.append(f'<g clip-path="url(#{clip})">')
+        # A pair of unequal packets serves as a material trace of the orbit.
+        # Both halves share their phase and meet at the silhouette. The far
+        # half is painted before the ribbons, and is occluded by them.
+        for j, radius in enumerate((3.8,2.55,1.65)):
+            delay = -duration*(.12+number*.19) + j*.25
+            x,y,_ = orbital_point(-delay/duration*2*pi, rx,ry)
+            parts.append(f'<g class="{name}Packet" style="animation-delay:{delay:.2f}s" transform="translate({x:.2f} {y:.2f})">'
+                         f'<circle r="{radius}" fill="{color}" opacity="{1-j*.21:.2f}" stroke="white" stroke-width=".6"/></g>')
+        parts.append('</g></g></g>')
+    return "".join(parts)
 
 
 def topology():
-    # Rosettes in the central window are the terminals of a switching bridge.
-    # One diagonal hands the connection to the other every half-cycle.
-    vertices = [(-70,6),(-31,-32),(28,-39),(69,-11),(40,21),(-22,38)]
-    edges = [(0,1),(1,2),(2,3),(3,4),(4,5),(5,0)]
-    elements = []
-    for a,b in edges:
-        elements.append(f'<path d="{path([vertices[a],vertices[b]])}" stroke="#365e91" stroke-opacity=".55" stroke-width=".95" fill="none"/>')
-    for cls, a,b in [("bridgeA",1,4),("bridgeB",2,5)]:
-        elements.append(f'<path class="{cls}" d="{path([vertices[a],(0,0),vertices[b]])}" stroke="{TEAL}" '
-                        f'stroke-width="1.25" fill="none" stroke-dasharray="2 2" opacity="{.8 if cls=="bridgeA" else .1}"/>')
-    # The marker runs from vertex to vertex over a closed routed strand.
-    route = path(vertices,True)
-    elements.append(f'<path class="route" d="{route}" pathLength="100" stroke="{BLUE}" stroke-width="2.6" '
-                    'stroke-dasharray="4 96" stroke-dashoffset="0" fill="none"/>')
-    lengths = [hypot(vertices[b][0]-vertices[a][0],vertices[b][1]-vertices[a][1]) for a,b in edges]
-    for i,(x,y) in enumerate(vertices):
-        delay = 8*sum(lengths[:i])/sum(lengths)-8
-        elements.append(f'<g transform="translate({x} {y})"><circle r="3.1" fill="#fff" stroke="{BLUE}" stroke-width="1.3"/>'
-                        f'<circle class="hit" style="animation-delay:{delay:.2f}s" r="5.4" fill="none" stroke="{TEAL}" stroke-width="1.2" opacity="0"/></g>')
-    return "".join(elements)
+    vertices = [(-63,3),(-28,-34),(31,-37),(65,-8),(39,21),(-22,38)]
+    route = path(vertices, True)
+    parts = [f'<path d="{route}" fill="none" stroke="#759bb8" stroke-width=".9"/>',
+             f'<path class="route" d="{route}" pathLength="100" fill="none" stroke="{TEAL}" stroke-width="2.2" stroke-dasharray="5 95" stroke-dashoffset="0"/>']
+    for cls, a, b in [("bridgeA",1,4),("bridgeB",2,5)]:
+        parts.append(f'<path class="{cls}" d="{path([vertices[a],(0,0),vertices[b]])}" stroke="{TEAL}" '
+                     f'stroke-width="1.2" stroke-dasharray="2 3" fill="none" opacity="{.65 if cls=="bridgeA" else .1}"/>')
+    for x,y in vertices:
+        parts.append(f'<circle cx="{x}" cy="{y}" r="2.7" fill="white" stroke="{BLUE}" stroke-width="1.2"/>')
+    return "".join(parts)
 
 
-def core():
-    faces = ribbon_faces(0) + ribbon_faces(1)
-    # Drawing the facets from back to front lets the bands pass over and
-    # under each other. The nucleus occupies the actual gap between layers.
-    nucleus = f'''<g>
-      <circle class="wave" r="17" fill="none" stroke="{TEAL}" stroke-width="1" opacity=".5"/>
-      <path d="M0-12 12-2 2 12-11 2Z" fill="{INK}"/>
-      <path d="M0-12 12-2 1 0Z" fill="#afdfec"/><path d="m1 0 11-2-10 14Z" fill="{BLUE}"/>
-      <path d="M-11 2 0-12 1 0Z" fill="#ffffff" stroke="{BLUE}" stroke-width=".7"/>
+def nucleus():
+    return f'''<g>
+      <ellipse class="wave" rx="23" ry="14" fill="none" stroke="{TEAL}" stroke-width="1.2" opacity="0"/>
+      <path d="M0-13 14-2 2 14-13 2Z" fill="{INK}"/>
+      <path d="M0-13 14-2 1 0Z" fill="#a7e0e0"/><path d="m1 0 13-2-12 16Z" fill="{BLUE}"/>
+      <path d="M-13 2 0-13 1 0Z" fill="white" stroke="{BLUE}" stroke-width=".7"/>
     </g>'''
-    faces.append((-3,topology()))
-    faces.append((0,nucleus))
-    return orbit(False) + "".join(f for _,f in sorted(faces)) + particles() + orbit(True)
 
 
 STYLE = """
-@keyframes turnA{0%,100%{transform:rotate(-3deg) scale(1,.97)}50%{transform:rotate(3deg) scale(.97,1.03)}}
-@keyframes turnB{0%,100%{transform:rotate(2deg) scale(1,1.02)}50%{transform:rotate(-3deg) scale(1.03,.96)}}
-.ribbon0{animation:turnA 15s ease-in-out infinite}.ribbon1{animation:turnB 19s ease-in-out infinite}
-@keyframes precessA{0%,100%{transform:rotate(0) scale(1,.8)}50%{transform:rotate(12deg) scale(.96,1.17)}}
-@keyframes precessB{0%,100%{transform:rotate(1deg) scale(.97,.76)}50%{transform:rotate(-16deg) scale(1,.99)}}
-.tiltA{animation:precessA 29s ease-in-out infinite}.tiltB{animation:precessB 23s ease-in-out infinite}
-@keyframes rewireA{0%,38%,100%{opacity:.85}52%,87%{opacity:.08}}
-@keyframes rewireB{0%,38%,100%{opacity:.08}52%,87%{opacity:.85}}
-.bridgeA{animation:rewireA 8s ease-in-out infinite}.bridgeB{animation:rewireB 8s ease-in-out infinite}
-@keyframes route{to{stroke-dashoffset:-100}}.route{animation:route 8s linear infinite}
-@keyframes hit{0%{opacity:.85;transform:scale(.72)}12%{opacity:0;transform:scale(1.8)}100%{opacity:0}}
-.hit{animation:hit 8s ease-out infinite}
-@keyframes transmit{to{stroke-dashoffset:-74}}.relay{animation:transmit 9s linear infinite}
-@keyframes gather{0%,18%,100%{transform:translate(0,0);opacity:.8}52%,64%{transform:translate(var(--dx),var(--dy));opacity:.4}}
-.grain{animation:gather 7s ease-in-out infinite}
-@keyframes emit{0%,100%{opacity:0;transform:scale(.65)}18%{opacity:.58}70%{opacity:0;transform:scale(3.4)}}
-.wave{animation:emit 7.5s ease-out infinite}
-@keyframes drift{to{transform:translate(22px,22px)}}.field{animation:drift 26s linear infinite}
-@keyframes scan{0%,100%{opacity:0;transform:translateY(-62px)}31%{opacity:.36}76%{opacity:0;transform:translateY(68px)}}
-.scanner{animation:scan 18s ease-in-out infinite}
-@keyframes slip{0%,86%,91%,100%{opacity:0;transform:translateX(0)}88%{opacity:.72;transform:translateX(3px)}}
-.glitch{animation:slip 16s ease-in-out infinite}
+@keyframes flex{50%{d:var(--pose)}}.flex{animation:flex 24s ease-in-out infinite}
+@keyframes outerTilt{0%,100%{transform:rotate(-4deg) scale(1,.82)}50%{transform:rotate(9deg) scale(.98,1.16)}}
+@keyframes innerTilt{0%,100%{transform:rotate(2deg) scale(1,1)}50%{transform:rotate(-12deg) scale(.97,.82)}}
+.outerPlane{animation:outerTilt 36s ease-in-out infinite}.innerPlane{animation:innerTilt 24s ease-in-out infinite}
+@keyframes rewireA{0%,33%,100%{opacity:.75}51%,80%{opacity:.08}}
+@keyframes rewireB{0%,33%,100%{opacity:.08}51%,80%{opacity:.75}}
+.bridgeA{animation:rewireA 12s ease-in-out infinite}.bridgeB{animation:rewireB 12s ease-in-out infinite}
+@keyframes route{to{stroke-dashoffset:-100}}.route{animation:route 12s linear infinite}
+@keyframes emit{0%,43%,88%,100%{opacity:0;transform:scale(.85)}54%{opacity:.7;transform:scale(1)}81%{opacity:0;transform:scale(3.1)}}
+.wave{animation:emit 12s ease-out infinite}
+@keyframes drift{to{transform:translate(22px,22px)}}.field{animation:drift 36s linear infinite}
+@keyframes slip{0%,88%,91%,100%{opacity:0;transform:translateX(0)}89.5%{opacity:.55;transform:translateX(2px)}}
+.glitch{animation:slip 36s ease-in-out infinite}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 """
 
@@ -209,29 +193,33 @@ def draw(mobile):
       <text x="89" y="90" font-size="126" font-family="{SANS}" font-weight="750" letter-spacing="-8">iaore</text>
     </g>'''
     footer = h-26
+    body, morphs = ribbons()
     return f'''<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-labelledby="title desc">
 <title id="title">Xiaore · Engineering Intelligence.</title>
-<desc id="desc">XIAORE / AGENT LAB. Phase Loom: two folded ribbons cross around a crystal nucleus. AI Agents / LLM Systems.</desc>
+<desc id="desc">XIAORE / AGENT LAB. Phase Loom: two flexing ribbons cross around a crystal nucleus. Particle packets weave between two orbital planes. AI Agents / LLM Systems.</desc>
 <defs>
   <pattern id="field" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".83" fill="#9bb0c5"/></pattern>
   <clipPath id="viewport"><rect x="{left-7}" y="{top}" width="{right-left+14}" height="{bottom-top}"/></clipPath>
   <clipPath id="slice"><path d="M0 37h345v3H0z"/></clipPath>
+  <clipPath id="near"><path d="M-210 0h420v70h-420Z"/></clipPath>
+  <clipPath id="far"><path d="M-210-70h420V0h-420Z"/></clipPath>
   <g id="letters">{mark}</g>
 </defs>
-<style>{STYLE}</style>
+<style>{STYLE}
+{orbital_styles()}
+{morphs}</style>
 <rect width="{w}" height="{h}" fill="{PAPER}"/>
 <path d="M{margin} 58H{w-margin}M{margin} {h-63}H{w-margin}" stroke="{RULE}"/>
 <g font-family="{MONO}" fill="{INK}" font-size="{14 if mobile else 15}">
   <path d="M{margin} 25h8l16 17h-8z M{margin+17} 25h8l-17 17h-8z" fill="{BLUE}"/>
   <text x="{margin+39}" y="40" font-family="{SANS}" font-weight="700" letter-spacing="1.6">XIAORE / AGENT LAB</text>
-  <text x="{w-margin}" y="40" text-anchor="end" letter-spacing="1.3" fill="{MUTED}">ED. 02</text>
+  <text x="{w-margin}" y="40" text-anchor="end" letter-spacing="1.3" fill="{MUTED}">ED. 03</text>
 </g>
 <g clip-path="url(#viewport)">
   <rect class="field" x="{left-22}" y="{top-22}" width="{right-left+44}" height="{bottom-top+44}" fill="url(#field)" opacity=".48"/>
   <path d="M{left} {cy}H{right} M{cx} {top}V{bottom}" stroke="{RULE}" stroke-dasharray="3 7" fill="none"/>
-  <path class="scanner" d="M{left} {cy}H{right}" opacity="0" stroke="{TEAL}" stroke-width="1"/>
 </g>
-<g transform="translate({cx} {cy}) scale({unit})">{core()}</g>
+<g transform="translate({cx} {cy}) scale({unit})">{orbit(False)}{body}{orbit(True)}</g>
 <g fill="none" stroke="#94a5b6"><path d="M{left} {top+12}v-12h12 M{right-12} {bottom}h12v-12"/></g>
 <text x="{cx+7}" y="{top+11}" font-family="{MONO}" font-size="12" letter-spacing=".7" fill="{MUTED}">Y+</text>
 <text x="{right-2}" y="{cy-5}" text-anchor="end" font-family="{MONO}" font-size="12" letter-spacing=".7" fill="{MUTED}">X+</text>

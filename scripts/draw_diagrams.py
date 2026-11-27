@@ -1,4 +1,4 @@
-"""Draw the three Agent Lab plates. The SVG attributes also define a still edition."""
+"""Draw the two Agent Lab plates. The SVG attributes also define a still edition."""
 from math import cos, radians, sin
 from pathlib import Path
 
@@ -73,12 +73,6 @@ def chip():
                      ("M12 5l31 35H21L0 18Z", "#9DDDD9")]:
         parts.append(path(d,fill=color))
     parts.append("</g>")
-    for t in range(4):
-        # A shallow fan-out on the exposed silicon joins the silver contacts.
-        points = [pad(-42+t*9,69,16), pad(-42+t*9,59-t*2,16),
-                  pad(-48+t*9,53-t*2,16), pad(-48+t*9,46-t*2,16)]
-        parts.append(path("M"+" ".join(xy(p) for p in points), "#B3C7FC", width=1.2))
-        parts.append(f'<circle cx="{points[-1][0]:.2f}" cy="{points[-1][1]:.2f}" r="1.5" fill="white"/>')
     parts.append(path(poly([pad(-56,-55,16), pad(-31,-55,16), pad(-37,-50,16), pad(-56,-50,16)]), fill="#89B5FF"))
     # The small contact groups on two corners indicate the conductive surface.
     for i in range(4):
@@ -87,68 +81,124 @@ def chip():
     return "".join(parts)
 
 
-LOOP_STYLE = """<style>
-@keyframes address {0%,14%{opacity:1} 19%,98%{opacity:0} 100%{opacity:1}}
-@keyframes send {0%{stroke-dashoffset:13;opacity:0} 2%{opacity:1} 8%{stroke-dashoffset:-97;opacity:1} 10%,11%{stroke-dashoffset:-103;opacity:0} 12%{opacity:.8} 17%{stroke-dashoffset:6;opacity:.8} 19%,100%{stroke-dashoffset:13;opacity:0}}
-@keyframes feedback {0%,87%{stroke-dashoffset:12;opacity:0} 88%{stroke-dashoffset:10;opacity:1} 99%{stroke-dashoffset:-97;opacity:1} 100%{stroke-dashoffset:-103;opacity:0}}
-.address{animation:address 12s ease-in-out infinite}.send{animation:send 12s linear infinite}
-.feedback{animation:feedback 12s linear infinite}
-@media(prefers-reduced-motion:reduce){.address,.send,.feedback{animation:none}}
-</style>"""
+# Each interval uses the same 12-second clock. The bright head of one trace
+# reaches its last vertex when the next trace starts at that same vertex.
+CYCLE = 12
+STAGE_TIMES = (0, 2.2, 4.4, 6.4, 9.5, CYCLE)
+CIRCUIT = (
+    ((-102,-15), (-85,-15), (-65,-27), (-47,-27), (-24,-42), (-4,-42)),
+    ((-4,-42), (13,-42), (31,-51), (57,-37), (57,-27), (80,-14)),
+    ((80,-14), (60,-2), (43,-2), (27,10), (16,10), (0,0), (0,-14)),
+)
+CORE_TO_RIM = ((0,-14), (16,-20), (40,-20), (66,-6), (93,-6),
+               (120,-18), (128,-14), (134,0), (146,5))
+
+
+def progress(seconds):
+    return f"{seconds/CYCLE*100:.3f}%"
+
+
+def loop_styles():
+    css = []
+    # Observe reaches the nucleus at 8.4 s. It holds the result until 9.5 s.
+    intervals = ((0,2.2), (2.2,4.4), (4.4,6.4), (6.4,8.4), (9.5,10.4), (10.4,11.86))
+    for i, (start, end) in enumerate(intervals):
+        css.append(f"@keyframes travel{i}{{0%,{progress(start)}{{stroke-dashoffset:15;opacity:0}}"
+                   f"{progress(start+.12)}{{opacity:1}}{progress(end)}{{stroke-dashoffset:-85;opacity:1}}"
+                   f"{progress(min(end+.14,CYCLE))}{{stroke-dashoffset:-100;opacity:0}}100%{{opacity:0}}}}")
+        css.append(f".leg{i}{{animation:travel{i} {CYCLE}s linear infinite}}")
+    for i in range(len(STAGES)):
+        start, end = STAGE_TIMES[i:i+2]
+        css.append(f"@keyframes select{i}{{0%,{progress(start)}{{opacity:0}}"
+                   f"{progress(start+.12)},{progress(end-.14)}{{opacity:1}}"
+                   f"{progress(end)},100%{{opacity:0}}}}")
+        css.append(f".selected{i}{{animation:select{i} {CYCLE}s linear infinite}}")
+    # Each illuminated circuit stays charged through the pulse, allowing the
+    # visitor to follow the internal sequence across short sections of copper.
+    for i in range(3):
+        arrived = intervals[i+1][1]
+        css.append(f"@keyframes charge{i}{{0%,{progress(arrived-.18)}{{opacity:0}}"
+                   f"{progress(arrived)},{progress(9.4)}{{opacity:.84}}"
+                   f"{progress(9.95)},100%{{opacity:0}}}}")
+        css.append(f".charge{i}{{animation:charge{i} {CYCLE}s ease-in-out infinite}}")
+    css.extend((
+        "@keyframes coreWave{0%,70%{opacity:0;transform:scale(.45)}72%{opacity:.9}"
+        "79.1667%{opacity:0;transform:scale(2)}100%{opacity:0;transform:scale(2)}}",
+        ".coreWave{animation:coreWave 12s ease-out infinite}",
+        "@media(prefers-reduced-motion:reduce){*{animation:none!important}}",
+    ))
+    return "<style>\n" + "\n".join(css) + "\n</style>"
+
+
+def track(d, i, ink, pulse, width=1.5):
+    return (path(d, ink, width=width) +
+            path(d, pulse, width=width+1.8, extra=f'class="leg{i}" pathLength="100" '
+                 'stroke-dasharray="15 120" stroke-linecap="round" opacity="0"'))
+
+
+def trace(points):
+    return "M" + " ".join(xy(p) for p in points)
 
 
 def loop(narrow):
     w, h = (420, 353) if narrow else (960, 322)
-    # Route five ordered address lines into five distinct die contacts.
     if narrow:
-        x, title_y, start_x, stage_x = 14, 52, 122, 40
+        x, title_y, inlet_x, stage_x = 14, 52, 124, 40
         first, step, cx, cy, scale = 126, 43, 290, 220, .73
     else:
-        x, title_y, start_x, stage_x = 24, 68, 290, 67
+        x, title_y, inlet_x, stage_x = 34, 68, 263, 77
         first, step, cx, cy, scale = 113, 36, 707, 171, 1.26
-    body = [LOOP_STYLE,
-            folio(x, title_y-5, 1),
-            label(x+(48 if narrow else 63), title_y, "Intelligence Loop", 33 if narrow else 48, weight=700, space=-1.7)]
+    body = [loop_styles(), folio(x, title_y-5, 1),
+            label(x+(48 if narrow else 63), title_y, "Intelligence Loop", 33 if narrow else 48,
+                  weight=700, space=-1.7)]
     if narrow:
         body.append(label(x+48, title_y+26, "CONCEPT STUDY", 13, MUTED, mono=True, space=1))
     else:
         body.append(label(w-x, title_y-7, "CONCEPT STUDY", 15, MUTED, mono=True, align="end", space=1.4))
-    # Socket addresses wrap around the two left edges of the package. The
-    # upper traces reach the far side; lower traces approach its near side.
-    contacts = [(-84,-40), (-84,10), (-84,54), (-44,84), (16,84)]
-    for i, (stage, contact) in enumerate(zip(STAGES, contacts)):
-        y = first + i * step
-        local_x, local_y = pad(*contact, -15)
-        end_x, end_y = cx + (local_x-5) * scale, cy + local_y * scale
-        elbow = start_x + (19 if narrow else 50) + i * (2 if narrow else 10)
-        # A flexible middle span keeps all stages in order on both layouts.
-        d = (f"M{start_x} {y}H{elbow} C{elbow+26} {y} {end_x-36:.2f} "
-             f"{end_y:.2f} {end_x-9:.2f} {end_y:.2f}H{end_x:.2f}")
-        delay = f'style="animation-delay:{-12+i*2.4:g}s"'
-        body.extend([
-            path(d, "#BACCDC", width=1.4),
-            path(d, TEAL, width=2.8, extra=f'pathLength="100" stroke-dasharray="13 110" class="send" opacity="0" {delay}'),
-            label(x, y+5, f"{i+1:02}", 13, MUTED, mono=True),
-            label(stage_x, y+7, stage, 19 if narrow else 23, weight=600, space=-.5),
-            path(f"M{stage_x} {y+12}h25",BLUE,width=2,extra=f'class="address" opacity="0" {delay}'),
-            f'<circle cx="{start_x}" cy="{y}" r="3.2" fill="white" stroke="{BLUE}"/>',
-            f'<circle class="address" {delay} cx="{start_x}" cy="{y}" r="4" fill="{BLUE}" opacity="0"/>',
-            f'<circle cx="{end_x:.2f}" cy="{end_y:.2f}" r="2.5" fill="{TEAL}"/>',
-            path(f"M{end_x:.2f} {end_y:.2f}h{9*scale:.2f}", TEAL),
-        ])
+
+    def on_page(point):
+        return cx + point[0]*scale, cy + point[1]*scale
+
+    # A phase register on the left names the active operation. Only the input
+    # and output are physical buses. Intermediate transactions live on the die.
+    for i, stage in enumerate(STAGES):
+        y = first+i*step
+        body.extend((label(x, y+5, f"{i+1:02}", 13, MUTED, mono=True),
+                     label(stage_x, y+7, stage, 19 if narrow else 23, weight=600, space=-.5),
+                     path(f"M{stage_x} {y+12}h27", BLUE, width=2,
+                          extra=f'class="selected{i}" opacity="0"')))
+    inlet = on_page((-145,0))
+    d = (f"M{inlet_x} {first}H{inlet_x+13} "
+         f"C{inlet_x+45} {first} {inlet[0]-40:.2f} {inlet[1]:.2f} {xy(inlet)}"
+         f"L{xy(on_page((-128,-15)))} {xy(on_page(CIRCUIT[0][0]))}")
     body.append(f'<g transform="translate({cx} {cy}) scale({scale})">{chip()}</g>')
-    # After the fifth exchange the core drives a separate return bus to the
-    # first address. Its arrival and the next Perceive highlight coincide.
-    bottom = h-23
-    right = w-x
-    bus_x = 3 if narrow else 9
-    return_bus = (f"M{cx+76*scale:.1f} {cy+52*scale:.1f}l19 9 H{right-12}l10 10 "
-                  f"V{bottom-9}l-9 9H{bus_x+8}l-8 -8V{first+4}l4 -4h3")
-    body.append(path(return_bus, "#8EA5BA", width=1.2))
-    body.append(path(return_bus, TEAL,width=2.3,extra='class="feedback" pathLength="100" stroke-dasharray="12 110" opacity="0"'))
-    body.append(path(f"M{bus_x+4} {first-3}l4 3-4 3", TEAL, width=1.5))
-    return frame(w,h,"01 · Intelligence Loop",
-                 "Concept study. Perceive, reason, act, observe and loop back to perception. Each addressed stage exchanges a pulse with the X-shaped control die.", body)
+    body.append(track(d, 0, "#829DB9", TEAL, 1.6))
+
+    body.append(f'<g transform="translate({cx} {cy}) scale({scale})">')
+    for i, points in enumerate(CIRCUIT):
+        d = trace(points)
+        body.append(track(d, i+1, "#ADCDF1", "white", 1.8))
+        body.append(path(d, "#C8FFEE", width=2, extra=f'class="charge{i}" opacity="0"'))
+        node_x, node_y = points[0]
+        body.append(f'<circle cx="{node_x}" cy="{node_y}" r="3" fill="{BLUE}" stroke="#DFFFFA" stroke-width="1.4"/>')
+    body.append(track(trace(CORE_TO_RIM), 4, "#91B7E0", "#B4FFF0", 1.7))
+    body.append('<g transform="translate(0 -14) scale(1 .58)">'
+                '<circle r="12" fill="#223CA0" stroke="#BCF7EE" stroke-width="2"/>'
+                '<circle r="4" fill="white"/><circle class="coreWave" r="12" fill="none" '
+                'stroke="white" stroke-width="2.2" opacity="0"/></g></g>')
+
+    # The return starts exactly at the final vertex of the illuminated trace.
+    # The folded bus delivers its sample to the very same Perceive socket.
+    right, bottom = w-x, h-21
+    back_x = inlet_x-6
+    outer = (f"M{xy(on_page(CORE_TO_RIM[-1]))}H{right-10}l8 8V{bottom-9}"
+             f"l-9 9H{back_x+8}l-8 -8V{first+6}l6 -6")
+    body.append(track(outer, 5, "#829DB9", TEAL, 1.4))
+    body.append(path(f"M{back_x-3} {first+24}l3-5 3 5", MUTED, width=1.3))
+    body.append(f'<circle cx="{inlet_x}" cy="{first}" r="3.4" fill="white" stroke="{BLUE}" stroke-width="1.6"/>')
+    return frame(w, h, "01 · Intelligence Loop",
+                 "Concept study. Perceive brings the signal into the die. Reason, Act and Observe "
+                 "light consecutive tracks. The nucleus pulses and sends the result back to Perceive.", body)
 
 
 def polar(r, angle):
@@ -158,20 +208,29 @@ def polar(r, angle):
 
 def aperture():
     """A rotating sweep in the circular plane is projected by the outer group."""
+    # A graduated annular wedge leaves the central bearing and its stem clear.
     bits = []
-    for i in range(6):
-        a, b = -48+i*8, -40+i*8
-        d = f"M0 0L{xy(polar(136,a))} A136 136 0 0 1 {xy(polar(136,b))}Z"
-        bits.append(path(d, fill=BLUE, extra=f'opacity="{.055+i*.067:.3f}"'))
-    bits.append(path("M0 0H136", BLUE, width=2.6))
+    for i in range(12):
+        a, b = -54 + 4.5*i, -49.5 + 4.5*i
+        d = (f"M{xy(polar(19,a))}L{xy(polar(136,a))} "
+             f"A136 136 0 0 1 {xy(polar(136,b))}L{xy(polar(19,b))} "
+             f"A19 19 0 0 0 {xy(polar(19,a))}Z")
+        bits.append(path(d, fill=BLUE, extra=f'opacity="{.045+.46*(i/11)**1.8:.3f}"'))
+    bits.append(path("M19 0H136", BLUE, width=2.8))
+    bits.append(path("M118 0H136", TEAL, width=3.2))
     return "".join(bits)
 
 
 RADAR_STYLE = """<style>
-@keyframes scan{to{transform:rotate(360deg)}}@keyframes receive{0%,100%{opacity:.2;transform:scale(.9)}7%{opacity:.9;transform:scale(1.7)}20%,95%{opacity:0;transform:scale(2)}}
-@keyframes propagate{0%{stroke-dashoffset:6;opacity:0}3%{opacity:1}13%{stroke-dashoffset:-24;opacity:0}100%{opacity:0}}
-.sweep{animation:scan 18s linear infinite}.receive{animation:receive 18s ease-out infinite}.transfer{animation:propagate 18s linear infinite}
-@media(prefers-reduced-motion:reduce){.sweep,.receive,.transfer{animation:none}}
+@keyframes scan{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes counter{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
+@keyframes receive{0%,100%{opacity:.95;transform:scale(.75)}5%{opacity:.36;transform:scale(1.6)}10%,98%{opacity:0;transform:scale(2)}99%{opacity:0;transform:scale(.74)}}
+@keyframes deposit{0%,100%{opacity:0}1.2%{opacity:.95}6%{opacity:.5}10%,98%{opacity:0}}
+@keyframes propagate{0%{stroke-dashoffset:6;opacity:.9}5%{stroke-dashoffset:-18;opacity:.9}6%{stroke-dashoffset:-24;opacity:0}98%,99.9%{stroke-dashoffset:6;opacity:0}}
+.sweep{animation:scan 24s linear infinite}.satellite{animation:counter 48s linear infinite}
+.receive{animation:receive 24s ease-out infinite}.deposit{animation:deposit 24s ease-out infinite}
+.transfer{animation:propagate 24s linear infinite}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>"""
 
 
@@ -186,6 +245,11 @@ def radar_field():
         parts.append(f'<circle r="140" fill="{face}" stroke="{edge}" stroke-width="1.8"/>')
         for r in (44, 88, 122):
             parts.append(f'<circle r="{r}" fill="none" stroke="{edge}" stroke-opacity=".56" stroke-width="1.2"/>')
+        if z == 36:
+            parts.append('<g class="satellite"><path d="M124.9 43.0A132 132 0 0 1 96.0 90.6" '
+                         'fill="none" stroke="#4CAAA5" stroke-width="3"/>'
+                         '<circle cx="96" cy="90.6" r="5" fill="white" stroke="#007F79" '
+                         'stroke-width="2.8"/></g>')
         if z == 0:
             for angle in range(0,360,30):
                 parts.append(path(f"M{xy(polar(12,angle))}L{xy(polar(138,angle))}", RULE))
@@ -200,13 +264,19 @@ def radar_field():
     for index, degrees in enumerate((-149,-101,-51,0,51,105,156)):
         a,b = polar(122,degrees)
         x,y = a*1.31,b*.49
-        phase = (degrees % 360)/360*18 - 18
+        phase = (degrees % 360)/360*24 - 24
         delay = f'style="animation-delay:{phase:.3f}s"'
         line = f"M{x:.2f} {y:.2f}v53"
         tint = TEAL if index in (1,4,6) else BLUE
         parts.append(path(line, tint, width=1, extra='stroke-opacity=".48" stroke-dasharray="2 3"'))
         parts.append(path(line, tint, width=2.6, extra=f'class="transfer" {delay} pathLength="24" stroke-dasharray="6 40" opacity="0"'))
-        parts.append(f'<g transform="translate({x:.2f} {y:.2f})"><circle class="receive" {delay} r="4.5" fill="none" stroke="{tint}" opacity="0"/><circle r="4.2" fill="white" stroke="{tint}" stroke-width="1.8"/><circle r="1.4" fill="{tint}"/></g>')
+        parts.append(f'<g transform="translate({x:.2f} {y:.2f})"><circle class="receive" {delay} r="5" fill="none" stroke="{tint}" stroke-width="1.8" opacity="0"/><circle r="4.2" fill="white" stroke="{tint}" stroke-width="1.8"/><circle r="1.4" fill="{tint}"/></g>')
+        # The destination lights after the downward packet has crossed the gap.
+        destination_delay = f'style="animation-delay:{phase + 1.2:.3f}s"'
+        parts.append(f'<ellipse cx="{x:.2f}" cy="{y+53:.2f}" rx="5" ry="2.5" fill="none" '
+                     f'stroke="{tint}" stroke-opacity=".45"/>')
+        parts.append(f'<ellipse class="deposit" {destination_delay} cx="{x:.2f}" cy="{y+53:.2f}" '
+                     f'rx="6" ry="3" fill="{tint}" opacity="0"/>')
         # Rotate each marker back against the mounting angle of the instrument.
         offset = -10 if y < 0 else 20
         parts.append(f'<g transform="translate({x:.2f} {y+offset:.2f}) rotate(13)">{label(0,0,chr(65+index),12,INK,700,mono=True,align="middle")}</g>')
@@ -237,35 +307,8 @@ def radar(narrow):
     return frame(w,h,"02 · Technology Radar",", ".join(FIELDS)+". Seven equally placed channels on a projected scanning field.",body,PAPER)
 
 
-def environment(narrow):
-    w,h = (420,175) if narrow else (960,140)
-    left, y = (14,45) if narrow else (24,53)
-    body = [f'''<style>@keyframes route{{0%,100%{{stroke-dashoffset:5;opacity:0}} 16%{{opacity:.9}} 72%{{stroke-dashoffset:-59;opacity:.9}} 80%{{opacity:0}}}}.route{{animation:route 9s ease-in-out infinite}}
-@media(prefers-reduced-motion:reduce){{.route{{animation:none}}}}</style>''',
-            path(f"M{left} 4H{w-left}",RULE),folio(left,y-3,3)]
-    if narrow:
-        body.append(label(62,y,"Development Environment",27,weight=700,space=-1.3))
-        x,start,step = 15,96,41
-    else:
-        body.extend([label(83,y,"Development",36,weight=700,space=-1.5),
-                     label(83,y+37,"Environment",36,weight=700,space=-1.5)])
-        x,start,step = 401,48,44
-    # Both buses are typeset on one matrix; the terminals are deliberately
-    # left open since these tools can be used independently.
-    for i,(category,a,b) in enumerate([("LANGUAGES","Python","TypeScript"),("TOOLS","Pydantic","Playwright")]):
-        gy = start + i*step
-        slot, step_x = (117,136) if narrow else (148,169)
-        body.append(label(x,gy,category,13,MUTED,600,mono=True,space=.4))
-        body.append(label(x+slot,gy+2,a,21 if narrow else 27,weight=600,space=-.7))
-        body.append(label(x+slot+step_x,gy+2,b,21 if narrow else 27,weight=600,space=-.7))
-        line = f"M{x} {gy+10}h{w-x-left-3}"
-        body.extend([path(line,RULE),path(line,TEAL,width=2,extra=f'class="route" style="animation-delay:{i*-4.5}s" pathLength="60" stroke-dasharray="5 65" opacity="0"'),
-                     path(f"M{x} {gy+8}h4v4h-4Z",fill=BLUE)])
-    return frame(w,h,"03 · Development Environment","Python and TypeScript. Pydantic for validation and Playwright for browser tests.",body)
-
-
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
-    for name, draw in (("loop", loop), ("radar", radar), ("environment", environment)):
+    for name, draw in (("loop", loop), ("radar", radar)):
         for suffix, narrow in (("",False),("-mobile",True)):
             (OUT / f"{name}{suffix}.svg").write_text(draw(narrow), encoding="utf-8")

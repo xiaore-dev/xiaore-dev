@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="111" height="38" viewBox="0 0 111 38" role="img" aria-labelledby="title">
+  <title id="title">03 · Garden</title>
+  <rect width="111" height="38" fill="#F6F8FA"/>
+  <path d="M0 37.5h111" stroke="#D7E0EA"/>
+  <path d="M6 37h14" stroke="#009F91" stroke-width="2"/>
+  <text x="7" y="15" fill="#326A67" font-family="ui-monospace,Consolas,monospace" font-size="10" font-weight="600">03</text>
+  <text x="25" y="25" fill="#182433" font-family="Inter,Helvetica Neue,Arial,sans-serif" font-weight="600" font-size="16" letter-spacing="-.4">Garden</text>
+  <path d="m93 24 7-7m-6 0h6v6" fill="none" stroke="#009F91" stroke-width="1.5"/>
+</svg>
