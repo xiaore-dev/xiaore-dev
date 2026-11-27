@@ -1,217 +1,271 @@
-"""Redraw the diagrams and development environment at their wide and narrow aspect ratios."""
-from math import asinh, cos, radians, sin, sqrt
+"""Draw the three Agent Lab plates. The SVG attributes also define a still edition."""
+from math import cos, radians, sin
 from pathlib import Path
 
 OUT = Path(__file__).resolve().parents[1] / "assets" / "lab"
 BLUE, TEAL, INK = "#2457E6", "#009F91", "#182433"
-RULE, MUTED, PAPER = "#D7E0EA", "#64748B", "#F6F8FA"
+RULE, MUTED, PAPER = "#D7E0EA", "#53667D", "#F6F8FA"
 SANS = "Inter,Helvetica Neue,Arial,sans-serif"
 MONO = "ui-monospace,SFMono-Regular,Consolas,monospace"
+STAGES = ("Perceive", "Reason", "Act", "Observe", "Loop")
+FIELDS = ("Agent Architecture", "LLM Inference", "Context Engineering", "Tool Calling",
+          "MCP", "RAG", "Software Engineering")
 
 
-def frame(w, h, title, description, drawing):
+def xy(point):
+    return ",".join(f"{v:.2f}" for v in point)
+
+
+def poly(points):
+    return "M" + " ".join(xy(p) for p in points) + "Z"
+
+
+def path(d, stroke="none", fill="none", width=1, extra=""):
+    return f'<path d="{d}" fill="{fill}" stroke="{stroke}" stroke-width="{width}" {extra}/>'
+
+
+def label(x, y, words, size, color=INK, weight=500, mono=False, align="start", space=0):
+    return (f'<text x="{x}" y="{y}" fill="{color}" font-family="{MONO if mono else SANS}" '
+            f'font-size="{size}" font-weight="{weight}" letter-spacing="{space}" '
+            f'text-anchor="{align}">{words}</text>')
+
+
+def folio(x, y, n):
+    return label(x, y, f"/ {n:02}", 17, BLUE, 650, mono=True, space=-.8)
+
+
+def frame(w, h, title, desc, body, background="white"):
+    content = "\n".join(body)
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-labelledby="title desc">
-<title id="title">{title}</title>
-<desc id="desc">{description}</desc>
-<rect x=".5" y=".5" width="{w-1}" height="{h-1}" fill="#FFFFFF" stroke="{RULE}"/>
-{drawing}
+<title id="title">{title}</title><desc id="desc">{desc}</desc>
+<rect width="{w}" height="{h}" fill="{background}"/>
+{content}
 </svg>
 '''
 
 
-# Paths are hand-drawn around the local origin. Each pictogram is a different
-# physical operation: collect, assemble, transmit, inspect and recirculate.
-SYMBOLS = (
-    '<path d="M-23 0Q0 -29 23 0Q0 29 -23 0Z"/><circle r="8.5"/><circle r="3" fill="currentColor" stroke="none"/>',
-    '<path d="M0 -21 19 -11 19 10 0 21 -19 10 -19 -11Z M-19 -11 0 0 19 -11 M0 0V21 M-9 -16 10 -5V5L0 11 -10 5V-5L9 -16"/>',
-    '<path d="M-20 -14H-5L10 0 -5 14H-20L-5 0Z" fill="currentColor" stroke="none"/><path d="M0 -14H9L24 0 9 14H0L14 0Z"/>',
-    '<circle r="18.5"/><circle r="10.3" stroke-dasharray="31 6 16 12"/><path d="M0 -24V-16 M0 16V24 M-24 0H-16 M16 0H24"/><circle r="3" fill="currentColor" stroke="none"/>',
-    '<path d="M-17 -2a17 17 0 0 1 28-11l6 6m0-10v10H7 M17 2a17 17 0 0 1-28 11l-6-6m0 10V7h10"/>',
-)
-STAGES = ("Perceive", "Reason", "Act", "Observe", "Loop")
+def pad(a, b, z=0):
+    """Project points on the die. The z axis remains vertical on the page."""
+    return a - b, (a + b) * .46 - z
 
 
-def point(x, y):
-    return f"{x:.2f},{y:.2f}"
+def chip():
+    # One chamfered carrier, ceramic layers and a blue die with a split X etched into it.
+    contour = [(-58,-72), (58,-72), (72,-58), (72,58), (58,72), (-58,72), (-72,58), (-72,-58)]
+    parts = []
+    for z, scale, face, side in [(-14, 1.17, "#E4EDF6", "#A7B9CC"), (-2, 1.07, "#D3E4EA", TEAL),
+                                  (15, 1, BLUE, "#163DAD")]:
+        upper = [pad(a * scale, b * scale, z) for a, b in contour]
+        lower = [(x, y + 6) for x, y in upper]
+        parts.append(path(poly(lower), side, side, 1))
+        for i in (2, 3, 4, 5, 6):
+            j = (i + 1) % len(upper)
+            parts.append(path(poly([upper[i], upper[j], lower[j], lower[i]]), side, side, .7))
+        parts.append(path(poly(upper), BLUE if z == 15 else "#B6C7D6", face, 1))
+    for t in range(-48, 56, 13):
+        for a, b, end_a, end_b in [(t, 72, t, 80), (72, t, 80, t)]:
+            parts.append(path(f"M{xy(pad(a,b,12))}L{xy(pad(end_a,end_b,11))}", "#7B9DF8", width=2))
+    # The die is etched in screen-aligned coordinates, so the X keeps both
+    # diagonals at this shallow viewing angle.
+    parts.append('<g transform="translate(0 -14) matrix(1 -.04 -.22 .6 0 0)">')
+    for d, color in [("M-43-40h21l20 24-12 14Z", "white"),
+                     ("M22-40h23L-23 40h-24Z", "white"),
+                     ("M12 5l31 35H21L0 18Z", "#9DDDD9")]:
+        parts.append(path(d,fill=color))
+    parts.append("</g>")
+    for t in range(4):
+        # A shallow fan-out on the exposed silicon joins the silver contacts.
+        points = [pad(-42+t*9,69,16), pad(-42+t*9,59-t*2,16),
+                  pad(-48+t*9,53-t*2,16), pad(-48+t*9,46-t*2,16)]
+        parts.append(path("M"+" ".join(xy(p) for p in points), "#B3C7FC", width=1.2))
+        parts.append(f'<circle cx="{points[-1][0]:.2f}" cy="{points[-1][1]:.2f}" r="1.5" fill="white"/>')
+    parts.append(path(poly([pad(-56,-55,16), pad(-31,-55,16), pad(-37,-50,16), pad(-56,-50,16)]), fill="#89B5FF"))
+    # The small contact groups on two corners indicate the conductive surface.
+    for i in range(4):
+        a = 18 + i * 7
+        parts.append(path(f"M{xy(pad(a,53,16))}L{xy(pad(a+3,56,16))}", "#B4CCFF", width=1.6))
+    return "".join(parts)
 
 
-def arrow(x, y, rotate=0):
-    return (f'<path transform="translate({x} {y}) rotate({rotate})" '
-            f'd="M-4 -3.5 0 0 -4 3.5" stroke="{MUTED}" stroke-width="1.4" fill="none"/>')
+LOOP_STYLE = """<style>
+@keyframes address {0%,14%{opacity:1} 19%,98%{opacity:0} 100%{opacity:1}}
+@keyframes send {0%{stroke-dashoffset:13;opacity:0} 2%{opacity:1} 8%{stroke-dashoffset:-97;opacity:1} 10%,11%{stroke-dashoffset:-103;opacity:0} 12%{opacity:.8} 17%{stroke-dashoffset:6;opacity:.8} 19%,100%{stroke-dashoffset:13;opacity:0}}
+@keyframes feedback {0%,87%{stroke-dashoffset:12;opacity:0} 88%{stroke-dashoffset:10;opacity:1} 99%{stroke-dashoffset:-97;opacity:1} 100%{stroke-dashoffset:-103;opacity:0}}
+.address{animation:address 12s ease-in-out infinite}.send{animation:send 12s linear infinite}
+.feedback{animation:feedback 12s linear infinite}
+@media(prefers-reduced-motion:reduce){.address,.send,.feedback{animation:none}}
+</style>"""
 
 
 def loop(narrow):
+    w, h = (420, 353) if narrow else (960, 322)
+    # Route five ordered address lines into five distinct die contacts.
     if narrow:
-        w, h = 420, 277
-        nodes = [(73, 69), (210, 69), (347, 69), (281, 186), (137, 186)]
-        right, left, turn, radius = 405, 15, 186, 15
-        arrows = [(145, 69, 0), (282, 69, 0), (405, 131, 90), (210, 186, 180), (15, 124, 270)]
-        lengths = [0, 137, 274]
+        x, title_y, start_x, stage_x = 14, 52, 122, 40
+        first, step, cx, cy, scale = 126, 43, 290, 220, .73
     else:
-        w, h = 960, 205
-        nodes = [(92 + 194*i, 81) for i in range(5)]
-        right, left, turn, radius = 925, 35, 173, 15
-        arrows = [(194 + 194*i, 81, 0) for i in range(4)] + [(480, 173, 180)]
-        lengths = [194*i for i in range(5)]
-
-    # Use the length of the drawn Bezier corners when scheduling arrivals.
-    # Relative coordinates put the carrier beneath the first node even when
-    # a viewer does not animate SMIL.
-    start_x, start_y = nodes[0]
-    height = turn - start_y
-    path = (f"M0 0h{right-radius-start_x}q{radius} 0 {radius} {radius}"
-            f"v{height-2*radius}q0 {radius} -{radius} {radius}"
-            f"h-{right-left-2*radius}q-{radius} 0 -{radius} -{radius}"
-            f"v-{height-2*radius}q0 -{radius} {radius} -{radius}h{start_x-left-radius}")
-    corner_length = radius * (1 + asinh(1) / sqrt(2))
-    cut = 2*radius - corner_length
-    perimeter = 2 * (right - left + height) - 4*cut
+        x, title_y, start_x, stage_x = 24, 68, 290, 67
+        first, step, cx, cy, scale = 113, 36, 707, 171, 1.26
+    body = [LOOP_STYLE,
+            folio(x, title_y-5, 1),
+            label(x+(48 if narrow else 63), title_y, "Intelligence Loop", 33 if narrow else 48, weight=700, space=-1.7)]
     if narrow:
-        for x, _ in nodes[3:]:
-            lengths.append(right - nodes[0][0] + height + right - x - 2*cut)
-    stops = ";".join(f"{d/perimeter:.5f};{d/perimeter:.5f}" for d in lengths) + ";1"
-    times = "0;.07;.16;.23;.32;.39;.48;.55;.64;.71;1"
-    body = [f"""<style>
-@keyframes select {{0%,7% {{opacity:1}} 12%,95% {{opacity:0}} 100% {{opacity:1}}}}
-.halo {{animation:select 10s linear infinite both}}
-@media (prefers-reduced-motion:reduce) {{.halo,.carrier {{display:none}}}}
-</style>
-<path transform="translate({start_x} {start_y})" d="{path}" stroke="{RULE}" stroke-width="1.6" fill="none"/>"""]
-    body.extend(arrow(*mark) for mark in arrows)
-    body.append(f'''<g class="carrier" transform="translate({start_x} {start_y})" fill="{TEAL}">
-<circle r="4"><animateMotion path="{path}" dur="10s" keyTimes="{times}" keyPoints="{stops}" calcMode="linear" repeatCount="indefinite"/></circle>
-</g>''')
-    for index, ((x, y), stage, symbol) in enumerate(zip(nodes, STAGES, SYMBOLS)):
-        color = TEAL if index in (0, 3) else BLUE
-        # An explicit rest state survives renderers without CSS animations.
-        body.append(f'''<g transform="translate({x} {y})">
-<circle r="33" fill="{PAPER}" stroke="{RULE}"/>
-<circle class="halo" style="animation-delay:{-10 + index*1.6:.1f}s" r="33" fill="{color}" fill-opacity=".08" stroke="{color}" stroke-width="2" opacity="0"/>
-<g fill="none" color="{color}" stroke="{color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">{symbol}</g>
-<text y="-42" text-anchor="middle" fill="{MUTED}" font-family="{MONO}" font-size="12" letter-spacing="1.2">{index+1:02}</text>
-<text y="59" text-anchor="middle" fill="{INK}" font-family="{SANS}" font-size="21" font-weight="600">{stage}</text>
-</g>''')
-    return frame(w, h, "Agent feedback loop",
-                 "Perceive, reason, act, observe, and loop back to the next perception. Concept diagram.",
-                 "\n".join(body))
+        body.append(label(x+48, title_y+26, "CONCEPT STUDY", 13, MUTED, mono=True, space=1))
+    else:
+        body.append(label(w-x, title_y-7, "CONCEPT STUDY", 15, MUTED, mono=True, align="end", space=1.4))
+    # Socket addresses wrap around the two left edges of the package. The
+    # upper traces reach the far side; lower traces approach its near side.
+    contacts = [(-84,-40), (-84,10), (-84,54), (-44,84), (16,84)]
+    for i, (stage, contact) in enumerate(zip(STAGES, contacts)):
+        y = first + i * step
+        local_x, local_y = pad(*contact, -15)
+        end_x, end_y = cx + (local_x-5) * scale, cy + local_y * scale
+        elbow = start_x + (19 if narrow else 50) + i * (2 if narrow else 10)
+        # A flexible middle span keeps all stages in order on both layouts.
+        d = (f"M{start_x} {y}H{elbow} C{elbow+26} {y} {end_x-36:.2f} "
+             f"{end_y:.2f} {end_x-9:.2f} {end_y:.2f}H{end_x:.2f}")
+        delay = f'style="animation-delay:{-12+i*2.4:g}s"'
+        body.extend([
+            path(d, "#BACCDC", width=1.4),
+            path(d, TEAL, width=2.8, extra=f'pathLength="100" stroke-dasharray="13 110" class="send" opacity="0" {delay}'),
+            label(x, y+5, f"{i+1:02}", 13, MUTED, mono=True),
+            label(stage_x, y+7, stage, 19 if narrow else 23, weight=600, space=-.5),
+            path(f"M{stage_x} {y+12}h25",BLUE,width=2,extra=f'class="address" opacity="0" {delay}'),
+            f'<circle cx="{start_x}" cy="{y}" r="3.2" fill="white" stroke="{BLUE}"/>',
+            f'<circle class="address" {delay} cx="{start_x}" cy="{y}" r="4" fill="{BLUE}" opacity="0"/>',
+            f'<circle cx="{end_x:.2f}" cy="{end_y:.2f}" r="2.5" fill="{TEAL}"/>',
+            path(f"M{end_x:.2f} {end_y:.2f}h{9*scale:.2f}", TEAL),
+        ])
+    body.append(f'<g transform="translate({cx} {cy}) scale({scale})">{chip()}</g>')
+    # After the fifth exchange the core drives a separate return bus to the
+    # first address. Its arrival and the next Perceive highlight coincide.
+    bottom = h-23
+    right = w-x
+    bus_x = 3 if narrow else 9
+    return_bus = (f"M{cx+76*scale:.1f} {cy+52*scale:.1f}l19 9 H{right-12}l10 10 "
+                  f"V{bottom-9}l-9 9H{bus_x+8}l-8 -8V{first+4}l4 -4h3")
+    body.append(path(return_bus, "#8EA5BA", width=1.2))
+    body.append(path(return_bus, TEAL,width=2.3,extra='class="feedback" pathLength="100" stroke-dasharray="12 110" opacity="0"'))
+    body.append(path(f"M{bus_x+4} {first-3}l4 3-4 3", TEAL, width=1.5))
+    return frame(w,h,"01 · Intelligence Loop",
+                 "Concept study. Perceive, reason, act, observe and loop back to perception. Each addressed stage exchanges a pulse with the X-shaped control die.", body)
 
 
-# Marker directions are graphic coordinates. Every topic has the same radius.
-FIELDS = (
-    ("Agent Architecture", -145), ("LLM Inference", -104),
-    ("Context Engineering", -47), ("Tool Calling", -2),
-    ("MCP", 42), ("RAG", 86), ("Software Engineering", 142),
-)
+def polar(r, angle):
+    a = radians(angle)
+    return (r*cos(a), r*sin(a))
 
 
-def polar(r, degrees):
-    angle = radians(degrees)
-    return r*cos(angle), r*sin(angle)
+def aperture():
+    """A rotating sweep in the circular plane is projected by the outer group."""
+    bits = []
+    for i in range(6):
+        a, b = -48+i*8, -40+i*8
+        d = f"M0 0L{xy(polar(136,a))} A136 136 0 0 1 {xy(polar(136,b))}Z"
+        bits.append(path(d, fill=BLUE, extra=f'opacity="{.055+i*.067:.3f}"'))
+    bits.append(path("M0 0H136", BLUE, width=2.6))
+    return "".join(bits)
 
 
-def wedge(radius, start, end):
-    return f"M0 0L{point(*polar(radius,start))}A{radius} {radius} 0 0 1 {point(*polar(radius,end))}Z"
+RADAR_STYLE = """<style>
+@keyframes scan{to{transform:rotate(360deg)}}@keyframes receive{0%,100%{opacity:.2;transform:scale(.9)}7%{opacity:.9;transform:scale(1.7)}20%,95%{opacity:0;transform:scale(2)}}
+@keyframes propagate{0%{stroke-dashoffset:6;opacity:0}3%{opacity:1}13%{stroke-dashoffset:-24;opacity:0}100%{opacity:0}}
+.sweep{animation:scan 18s linear infinite}.receive{animation:receive 18s ease-out infinite}.transfer{animation:propagate 18s linear infinite}
+@media(prefers-reduced-motion:reduce){.sweep,.receive,.transfer{animation:none}}
+</style>"""
+
+
+def radar_field():
+    parts = []
+    # Three separated elevations share an orthographic plane. Each topic sits
+    # at the same physical radius. Depth is purely a property of the drawing.
+    for z, face, edge in [(53, "#DFE8F6", "#829AC2"), (36, "#EBF4F3", "#629DA4"), (0, "#F4F8FF", "#7C9DE9")]:
+        parts.append(f'<g transform="translate(0 {z}) scale(1.31 .49)">')
+        rim = BLUE if z == 0 else ("#65ACA8" if z == 36 else "#A5B7D1")
+        parts.append(path("M140 0a140 140 0 0 1-280 0v6a140 140 0 0 0 280 0Z",fill=rim))
+        parts.append(f'<circle r="140" fill="{face}" stroke="{edge}" stroke-width="1.8"/>')
+        for r in (44, 88, 122):
+            parts.append(f'<circle r="{r}" fill="none" stroke="{edge}" stroke-opacity=".56" stroke-width="1.2"/>')
+        if z == 0:
+            for angle in range(0,360,30):
+                parts.append(path(f"M{xy(polar(12,angle))}L{xy(polar(138,angle))}", RULE))
+            for angle in range(4,360,4):
+                if angle % 60 < 40:
+                    parts.append(path(f"M{xy(polar(128,angle))}L{xy(polar(134,angle))}", "#829ECF",width=1.2))
+            parts.append(path("M-18 0a18 18 0 1 1 36 0a18 18 0 1 1-36 0Z",BLUE,"#DEE9FF",1.4))
+            parts.append(f'<g class="sweep">{aperture()}</g>')
+        parts.append("</g>")
+    # Satellites exchange signals vertically between the upper plane and the
+    # receiving deck. The sweep and echoes share a clock and angular origin.
+    for index, degrees in enumerate((-149,-101,-51,0,51,105,156)):
+        a,b = polar(122,degrees)
+        x,y = a*1.31,b*.49
+        phase = (degrees % 360)/360*18 - 18
+        delay = f'style="animation-delay:{phase:.3f}s"'
+        line = f"M{x:.2f} {y:.2f}v53"
+        tint = TEAL if index in (1,4,6) else BLUE
+        parts.append(path(line, tint, width=1, extra='stroke-opacity=".48" stroke-dasharray="2 3"'))
+        parts.append(path(line, tint, width=2.6, extra=f'class="transfer" {delay} pathLength="24" stroke-dasharray="6 40" opacity="0"'))
+        parts.append(f'<g transform="translate({x:.2f} {y:.2f})"><circle class="receive" {delay} r="4.5" fill="none" stroke="{tint}" opacity="0"/><circle r="4.2" fill="white" stroke="{tint}" stroke-width="1.8"/><circle r="1.4" fill="{tint}"/></g>')
+        # Rotate each marker back against the mounting angle of the instrument.
+        offset = -10 if y < 0 else 20
+        parts.append(f'<g transform="translate({x:.2f} {y+offset:.2f}) rotate(13)">{label(0,0,chr(65+index),12,INK,700,mono=True,align="middle")}</g>')
+    parts.extend([path("M0 -53V50", INK, width=1.3),
+                  path("M-5 -53l5 -3 5 3-5 3Z", fill=TEAL),
+                  '<ellipse rx="8" ry="4" fill="white" stroke="#2457E6" stroke-width="2"/>',
+                  '<circle r="2.7" fill="#2457E6"/>'])
+    return "".join(parts)
 
 
 def radar(narrow):
-    w, h, cx, cy, radius = (420, 430, 210, 126, 99) if narrow else (960, 330, 460, 165, 126)
-    body = [f'''<style>
-@keyframes sweep {{to {{transform:rotate(360deg)}}}}
-@keyframes echo {{0% {{opacity:0;transform:scale(.68)}} 4% {{opacity:.55}} 16%,100% {{opacity:0;transform:scale(1.7)}}}}
-@keyframes core {{0%,70%,100% {{opacity:.18}} 35% {{opacity:.65}}}}
-.sweep {{animation:sweep 18s linear infinite}}
-.echo {{animation:echo 18s ease-out infinite}}
-.core {{animation:core 8s ease-in-out infinite}}
-@media (prefers-reduced-motion:reduce) {{.sweep,.echo,.core {{animation:none}}}}
-</style>
-<g transform="translate({cx} {cy})">
-<circle r="{radius}" fill="{PAPER}"/>''']
-    for frac in (.27,.53,.78,1):
-        body.append(f'<circle r="{radius*frac:.2f}" fill="none" stroke="{RULE}" stroke-width="1"/>')
-    for angle in range(0, 360, 45):
-        body.append(f'<path d="M0 0L{point(*polar(radius,angle))}" stroke="{RULE}" stroke-width=".8"/>')
-    for angle in range(0, 360, 5):
-        major = angle % 30 == 0
-        body.append(f'<path d="M{point(*polar(radius+4,angle))}L{point(*polar(radius+(10 if major else 6),angle))}" stroke="{MUTED if major else RULE}"/>')
-    # Offset calibration arcs bracket each topic on the rim.
-    for i, (_, direction) in enumerate(FIELDS):
-        r = radius + 3
-        arc = f"M{point(*polar(r,direction-8))}A{r} {r} 0 0 1 {point(*polar(r,direction+8))}"
-        body.append(f'<path d="{arc}" fill="none" stroke="{BLUE if i % 2 == 0 else TEAL}" stroke-width="2.2"/>')
-    body.append('<g class="sweep">')
-    for n in range(6):
-        body.append(f'<path d="{wedge(radius,-121+n*5,-116+n*5)}" fill="{BLUE}" opacity="{.012*(n+1):.3f}"/>')
-    body.append(f'<path d="M0 0V-{radius}" stroke="{BLUE}" stroke-width="1.2" opacity=".65"/></g>')
-    body.append(f'<circle class="core" r="13" fill="none" stroke="{TEAL}" opacity=".45"/><circle r="6" fill="{INK}"/><circle r="2" fill="white"/></g>')
-    desktop_labels = [(255,126),(255,54),(691,49),(691,117),(691,206),(691,273),(255,244)]
-    for i, (label, angle) in enumerate(FIELDS):
-        dx, dy = polar(.78*radius,angle)
-        x, y = cx+dx, cy+dy
-        color = BLUE if i % 2 == 0 else TEAL
-        marker = chr(65+i)
+    w,h = (420,445) if narrow else (960,332)
+    x,y = (14,48) if narrow else (505,63)
+    cx,cy,s = (209,160,.88) if narrow else (236,142,1.12)
+    body = [RADAR_STYLE, folio(x,y-4,2),
+            label(x+(48 if narrow else 57),y,"Technology Radar",33 if narrow else 39,weight=700,space=-1.5),
+            f'<g transform="translate({cx} {cy}) scale({s}) rotate(-13)">{radar_field()}</g>']
+    for i, title in enumerate(FIELDS):
         if narrow:
-            lx, ly = 26 + (i % 2)*200, 268 + (i//2)*41
-            body.append(f'<path d="M{lx} {ly-14}h168" stroke="{RULE}"/>')
-            body.append(f'<text x="{lx}" y="{ly+6}" font-family="{MONO}" font-size="13" fill="{BLUE}">{marker}</text>'
-                        f'<text x="{lx+18}" y="{ly+6}" font-family="{SANS}" font-size="16" font-weight="600" fill="{INK}">{label}</text>')
-            offset_x, offset_y = polar(17,angle)
-            body.append(f'<text x="{x+offset_x:.2f}" y="{y+offset_y+4:.2f}" text-anchor="middle" font-family="{MONO}" font-size="12" font-weight="bold" fill="{INK}">{marker}</text>')
+            lx,ly = 14 + (i%2)*202, 299 + (i//2)*39
+            size = 16.4
         else:
-            lx, ly = desktop_labels[i]
-            side = 1 if dx > 0 else -1
-            end = lx - side*11
-            elbow = x + side*abs(ly-y)
-            # Direct labels keep the compass readable without consulting a key.
-            body.append(f'<path d="M{point(x,y)}L{point(elbow,ly)}H{end}" fill="none" stroke="{MUTED}" stroke-opacity=".63"/>')
-            body.append(f'<text x="{lx}" y="{ly+6}" text-anchor="{"start" if side==1 else "end"}" font-family="{SANS}" font-size="21" font-weight="600" fill="{INK}">{label}</text>')
-        phase = ((angle + 90) % 360)/360 * 18
-        body.append(f'''<g transform="translate({x:.2f} {y:.2f})">
-<circle class="echo" style="animation-delay:{phase-18:.3f}s" r="8" stroke="{color}" fill="none" opacity="0"/>
-<circle r="5.3" fill="white" stroke="{color}" stroke-width="2"/><circle r="2.2" fill="{color}"/></g>''')
-    return frame(w,h,"Technology radar",", ".join(label for label, _ in FIELDS) + ". A map of exploration topics.",
-                 "\n".join(body))
-
-
-# Instruments share a rounded drawing stroke and a single spot color.
-TOOLS = (
-    ("Python", "Language",
-     '<path d="M-14 -13h13l6 6h10 M-15 -2h8l6 6h14 M-15 10h5l5 5h9"/><circle cx="15" cy="-7" r="3.1" fill="#2457E6" stroke="none"/>'),
-    ("TypeScript", "Language",
-     '<path d="M-12 -11l-8 11 8 11 M12 -11l8 11 -8 11 M-5 -7H6 M.5 -7V8"/><path d="M-3 9h7" stroke="#2457E6"/>'),
-    ("Pydantic", "Validation",
-     '<path d="M-5 -16h-8v10q0 5 -6 6 6 1 6 6v10h8 M5 -16h8v10q0 5 6 6 -6 1 -6 6v10H5"/><path d="M-6 0l4 4 8-9" stroke="#2457E6"/>'),
-    ("Playwright", "Browser tests",
-     '<path d="M-11 -14v-3h28v22h-3 M-17 -10h29v24h-29Z M-16 -4h27"/><path d="m-5 0 7 4-7 5Z" fill="#2457E6" stroke="none"/>'),
-)
+            lx,ly = 512, 110 + i*30
+            size = 19
+        body.extend([label(lx,ly,chr(65+i),14,BLUE,650,mono=True),
+                     path(f"M{lx+20} {ly-5}h10", "#95A9BF"),
+                     label(lx+40,ly,title,size,weight=550,space=-.4)])
+    return frame(w,h,"02 · Technology Radar",", ".join(FIELDS)+". Seven equally placed channels on a projected scanning field.",body,PAPER)
 
 
 def environment(narrow):
-    w, h = (420, 224) if narrow else (960, 136)
-    cols = 2 if narrow else 4
-    cell_w, cell_h = w / cols, h / (2 if narrow else 1)
-    body = [f'''<style>
-@keyframes trace {{0%,48%,100% {{opacity:0;stroke-dashoffset:48}} 8% {{opacity:.8}} 38% {{opacity:.65;stroke-dashoffset:0}} 46% {{opacity:0;stroke-dashoffset:-16}}}}
-.trace {{animation:trace 12s ease-in-out infinite}}
-@media (prefers-reduced-motion:reduce) {{.trace {{animation:none}}}}
-</style>''']
+    w,h = (420,175) if narrow else (960,140)
+    left, y = (14,45) if narrow else (24,53)
+    body = [f'''<style>@keyframes route{{0%,100%{{stroke-dashoffset:5;opacity:0}} 16%{{opacity:.9}} 72%{{stroke-dashoffset:-59;opacity:.9}} 80%{{opacity:0}}}}.route{{animation:route 9s ease-in-out infinite}}
+@media(prefers-reduced-motion:reduce){{.route{{animation:none}}}}</style>''',
+            path(f"M{left} 4H{w-left}",RULE),folio(left,y-3,3)]
     if narrow:
-        body.append(f'<path d="M0 {cell_h:g}h{w}" stroke="{RULE}"/>')
-    for i in range(1, cols):
-        body.append(f'<path d="M{cell_w*i:g} 0v{h}" stroke="{RULE}"/>')
-    for index, (name, role, symbol) in enumerate(TOOLS):
-        x, y = cell_w*(index % cols), cell_h*(index // cols)
-        icon_y, title_y, role_y = (30, 71, 93) if narrow else (37, 87, 111)
-        body.append(f'''<g transform="translate({x:g} {y:g})">
-<g transform="translate(39 {icon_y})" fill="none" stroke="{INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{symbol}</g>
-<path d="M77 {icon_y}h{cell_w-100:g}" stroke="{RULE}" stroke-width="1"/>
-<path class="trace" style="animation-delay:{-12+index*3}s" d="M77 {icon_y}h{cell_w-100:g}" stroke="{TEAL}" stroke-width="2" stroke-dasharray="16 32" opacity="0"/>
-<text x="21" y="{title_y}" font-family="{SANS}" font-size="24" font-weight="600" fill="{INK}">{name}</text>
-<text x="22" y="{role_y}" font-family="{MONO}" font-size="14" fill="{MUTED}">{role}</text></g>''')
-    return frame(w, h, "Development environment", "Python and TypeScript languages, Pydantic for validation, and Playwright for browser tests.", "\n".join(body))
+        body.append(label(62,y,"Development Environment",27,weight=700,space=-1.3))
+        x,start,step = 15,96,41
+    else:
+        body.extend([label(83,y,"Development",36,weight=700,space=-1.5),
+                     label(83,y+37,"Environment",36,weight=700,space=-1.5)])
+        x,start,step = 401,48,44
+    # Both buses are typeset on one matrix; the terminals are deliberately
+    # left open since these tools can be used independently.
+    for i,(category,a,b) in enumerate([("LANGUAGES","Python","TypeScript"),("TOOLS","Pydantic","Playwright")]):
+        gy = start + i*step
+        slot, step_x = (117,136) if narrow else (148,169)
+        body.append(label(x,gy,category,13,MUTED,600,mono=True,space=.4))
+        body.append(label(x+slot,gy+2,a,21 if narrow else 27,weight=600,space=-.7))
+        body.append(label(x+slot+step_x,gy+2,b,21 if narrow else 27,weight=600,space=-.7))
+        line = f"M{x} {gy+10}h{w-x-left-3}"
+        body.extend([path(line,RULE),path(line,TEAL,width=2,extra=f'class="route" style="animation-delay:{i*-4.5}s" pathLength="60" stroke-dasharray="5 65" opacity="0"'),
+                     path(f"M{x} {gy+8}h4v4h-4Z",fill=BLUE)])
+    return frame(w,h,"03 · Development Environment","Python and TypeScript. Pydantic for validation and Playwright for browser tests.",body)
 
 
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
-    for name, draw in (("loop",loop),("radar",radar),("environment",environment)):
-        for suffix, narrow in (("", False), ("-mobile", True)):
+    for name, draw in (("loop", loop), ("radar", radar), ("environment", environment)):
+        for suffix, narrow in (("",False),("-mobile",True)):
             (OUT / f"{name}{suffix}.svg").write_text(draw(narrow), encoding="utf-8")

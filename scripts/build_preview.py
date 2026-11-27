@@ -22,7 +22,8 @@ def still_frame(source):
         style = parent.attrib.get("style", "")
         if style.startswith("animation-delay:"):
             del parent.attrib["style"]
-    return ET.tostring(root, encoding="unicode") + "\n"
+    serialized = ET.tostring(root, encoding="unicode")
+    return "\n".join(line.rstrip() for line in serialized.splitlines()) + "\n"
 
 
 # The profile body uses GitHub-supported HTML, so both views share one source.

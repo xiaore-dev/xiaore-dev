@@ -1,225 +1,255 @@
-"""Generate the wide and narrow orbital plates using only the standard library."""
-
-from math import asin, atan2, cos, pi, radians, sin
+"""Draw the two editions of Phase Loom, Xiaore's kinetic X sculpture."""
+from math import cos, cosh, hypot, pi, radians, sin, sqrt, tanh
 from pathlib import Path
 
-ASSETS = Path(__file__).resolve().parents[1] / "assets" / "lab"
-RADIUS = 132
-TILT = radians(23)
-MERIDIANS = 20
-ROTATION = 28  # seconds per revolution
-BLUE = "#2457E6"
-INK = "#182433"
-MUTED = "#64748B"
-LINE = "#D7E0EA"
-TEAL = "#009F91"
-MONO = "ui-monospace, Menlo, Consolas, monospace"
+ART = Path(__file__).resolve().parents[1] / "assets" / "lab"
+PAPER, INK, BLUE, TEAL = "#F6F8FA", "#182433", "#2457E6", "#009F91"
+MUTED, RULE = "#53677A", "#D7E0EA"
+SANS = "Inter,Helvetica Neue,Arial,sans-serif"
+MONO = "ui-monospace,SFMono-Regular,Consolas,monospace"
 
 
-def pair(point):
-    return " ".join(f"{value:.1f}" for value in point)
+def point(vertex):
+    x, y, *_ = vertex
+    return f"{x:.1f},{y:.1f}"
 
 
-def sphere(latitude, longitude):
-    """Project coordinates on the inclined polar axis into the drawing plane."""
-    return (
-        RADIUS * sin(latitude) * cos(longitude),
-        RADIUS * (-cos(latitude) * cos(TILT) + sin(latitude) * sin(longitude) * sin(TILT)),
-    )
+def path(vertices, close=False):
+    return "M" + " ".join(point(p) for p in vertices) + ("Z" if close else "")
 
 
-def arc(point, start, end, segments):
-    """Convert a projected circular arc to tangent-matched cubic Béziers."""
-    step = (end - start) / segments
-    commands = ["M" + pair(point(start))]
-    for segment in range(segments):
-        a = start + segment * step
-        b = a + step
-        p, q = point(a), point(b)
-        # For a projected circle the derivative is a quarter-turn along its
-        # ellipse, less its center. Central differences are exact at ±pi/2.
-        p1, p0 = point(a + pi / 2), point(a - pi / 2)
-        q1, q0 = point(b + pi / 2), point(b - pi / 2)
-        handle = 2 / 3 * sin(step / 2) / (1 + cos(step / 2))
-        first = [p[i] + handle * (p1[i] - p0[i]) for i in (0, 1)]
-        last = [q[i] - handle * (q1[i] - q0[i]) for i in (0, 1)]
-        commands.append("C" + " ".join(pair(x) for x in (first, last, q)))
-    return "".join(commands)
+def tint(dark, light, weight):
+    a = bytes.fromhex(dark)
+    b = bytes.fromhex(light)
+    return "#" + "".join(f"{round(x+(y-x)*weight):02x}" for x, y in zip(a, b))
 
 
-def meridian(angle, front):
-    # At this latitude the surface normal is parallel to the image plane.
-    horizon = atan2(sin(TILT), -sin(angle) * cos(TILT))
-    start, end = (0, horizon) if front else (horizon, pi)
-    return arc(lambda t: sphere(t, angle), start, end, 2)
+def surface(t, across, loom, under=False):
+    """Project a cut, twisting strip around an elongated elliptical spine."""
+    angle = radians(-38 if loom == 0 else 39)
+    radius, opening = (151, 28) if loom == 0 else (139, 26)
+    twist = .38 + .90 * sin(t + loom * 1.7) + .40 * sin(2*t - .7)
+    width = 15.5 + 5.5 * cos(t - .85)
+    # The planar normal is perpendicular to the elliptical spine's tangent.
+    bend = 2.2
+    spine_x = opening*cos(t) + (radius-opening)*tanh(bend*cos(t))/tanh(bend)
+    speed = opening + bend*(radius-opening)/(tanh(bend)*cosh(bend*cos(t))**2)
+    nx, ny = opening*cos(t), speed*sin(t)
+    length = hypot(nx, ny)
+    normal = across * width * cos(twist)
+    x = spine_x + normal*nx/length
+    y = opening*sin(t) + normal*ny/length
+    z = 24*sin(t) + 14*sin(2*t + loom*.8) + across*width*sin(twist)
+    z += (-5 if under else 0) + (9 if loom == 0 else -9)
+    return (x*cos(angle) - y*sin(angle) + .10*z,
+            x*sin(angle) + y*cos(angle) - .44*z, z)
 
 
-def parallel(degrees, front):
-    theta = radians(degrees)
-    crossing = -cos(theta) * sin(TILT) / (sin(theta) * cos(TILT))
-    point = lambda t: sphere(theta, t)
-    if abs(crossing) >= 1:
-        return arc(point, 0, 2 * pi, 4) if front == (crossing < 0) else ""
-    start = asin(crossing)
-    a, b = (start, pi - start) if front else (pi - start, 2 * pi + start)
-    return arc(point, a, b, 4)
+def ribbon_faces(loom):
+    count = 48
+    # Saw cuts at the outer tips expose the thickness of the optical bands.
+    gap = .76 if loom == 1 else 0
+    angles = [gap/2 + (2*pi-gap)*i/count for i in range(count+1)]
+    faces = []
+    for i, (start, end) in enumerate(zip(angles, angles[1:])):
+        a, b = surface(start,-1,loom), surface(end,-1,loom)
+        c, d = surface(end,1,loom), surface(start,1,loom)
+        # Both faces use a cold, highly directional satin reflection.
+        along = [b[j]-a[j] for j in range(3)]
+        across = [d[j]-a[j] for j in range(3)]
+        vx = along[1]*across[2]-along[2]*across[1]
+        vy = along[2]*across[0]-along[0]*across[2]
+        vz = along[0]*across[1]-along[1]*across[0]
+        shine = abs((-.38*vx-.53*vy+.76*vz)/sqrt(vx*vx+vy*vy+vz*vz))
+        if loom == 0:
+            fill = tint("102777","8dbbff",.06+.91*shine**2.6)
+            edge = "#142e83"
+        else:
+            fill = tint("0b5a66","b3eee2",.02+.96*shine**2.2)
+            edge = "#165c63"
+        fragment = []
+        for side in (-1,1):
+            rim = [surface(start,side,loom),surface(end,side,loom),
+                   surface(end,side,loom,True),surface(start,side,loom,True)]
+            fragment.append(f'<path d="{path(rim,True)}" fill="{edge}" stroke="{edge}" stroke-width=".5"/>')
+        fragment.append(f'<path d="{path([a,b,c,d],True)}" fill="{fill}" stroke="{fill}" stroke-width=".65"/>')
+        # Two longitudinal facets pick up the hard and soft reflections of a
+        # pressed metal edge. They follow the surface all the way to the cut.
+        for lo,hi,finish in [(-1,-.80,"192f5a"),(.49,.79,"ffffff")]:
+            facet = [surface(start,lo,loom),surface(end,lo,loom),surface(end,hi,loom),surface(start,hi,loom)]
+            lacquer = tint(fill[1:],finish,.49 if hi>0 else .38)
+            fragment.append(f'<path d="{path(facet,True)}" fill="{lacquer}" stroke="{lacquer}" stroke-width=".4"/>')
+        fragment.append(f'<path d="{path([a,b])} {path([d,c])}" fill="none" stroke="#edf7ff" stroke-opacity=".75" stroke-width=".8"/>')
+        # Sparse triangular facets carry the visible topology across the skin.
+        if i % 3 == 0:
+            fragment.append(f'<path d="{path([a,d,c])}" stroke="{edge}" stroke-opacity=".38" stroke-width=".7" fill="none"/>')
+        if gap and i in (0,count-1):
+            t = start if i == 0 else end
+            cap = [surface(t,-1,loom),surface(t,1,loom),surface(t,1,loom,True),surface(t,-1,loom,True)]
+            fragment.append(f'<path d="{path(cap,True)}" fill="{INK}" stroke="#ffffff" stroke-width=".65"/>')
+        z = sum(v[2] for v in (a,b,c,d))/4
+        faces.append((z, f'<g class="ribbon{loom}">'+"".join(fragment)+'</g>'))
+    return faces
 
 
-def animated_styles():
-    styles = [
-        ".grid-drift{animation:drift 26s linear infinite}",
-        "@keyframes drift{to{transform:translate(24px,24px)}}",
-        ".scanner{animation:scan 21s ease-in-out infinite}",
-        "@keyframes scan{0%,100%{transform:translateY(-52px);opacity:0}"
-        "30%{opacity:.38}76%{transform:translateY(68px);opacity:0}}",
-        ".glitch{animation:slip 13s ease-in-out infinite}",
-        "@keyframes slip{0%,82%,86%,100%{opacity:0;transform:translateX(0)}"
-        "84%{opacity:.64;transform:translateX(4px)}}",
-        ".travel{animation:orbit 22s linear infinite}",
-    ]
-    positions = []
-    for step in range(49):
-        angle = 2 * pi * step / 48
-        dx, dy = 196 * (cos(angle) - 1), 46 * sin(angle)
-        positions.append(f"{100 * step / 48:.3f}%{{transform:translate({dx:.2f}px,{dy:.2f}px)}}")
-    styles.append(f"@keyframes orbit{{{''.join(positions)}}}")
-    # One pair of interpolated paths drives every rib. A phase shift selects
-    # each longitude. Native 'd' attributes also draw the complete still plate.
-    for front, name in [(False, "far"), (True, "near")]:
-        styles.append(f".{name}{{animation:{name} {ROTATION}s linear infinite}}")
-        frames = []
-        for frame in range(41):
-            path = meridian(2 * pi * frame / 40, front)
-            frames.append(f"{frame * 2.5:g}%{{d:path('{path}')}}")
-        styles.append(f"@keyframes {name}{{{''.join(frames)}}}")
-    for index in range(MERIDIANS):
-        styles.append(f".p{index}{{animation-delay:-{ROTATION * index / MERIDIANS:g}s}}")
-    styles.append("@media(prefers-reduced-motion:reduce){*{animation:none!important}}")
-    return "\n".join(styles)
+def orbit(foreground):
+    elements = []
+    for angle, rx, ry, color, name in [(-17,207,46,TEAL,"tiltA"),(52,152,48,BLUE,"tiltB")]:
+        d = (f"M{rx} 0A{rx} {ry} 0 0 1 {-rx} 0" if foreground
+             else f"M{-rx} 0A{rx} {ry} 0 0 1 {rx} 0")
+        dash = "7 141" if foreground and name == "tiltB" else "none"
+        elements.append(f'<g transform="rotate({angle})"><g class="{name}">'
+                        f'<path d="{d}" fill="none" stroke="{color}" stroke-width="{1.15 if foreground else .85}" '
+                        f'stroke-opacity="{.65 if foreground else .36}" stroke-dasharray="{dash}"/>'
+                        f'<path class="relay" d="{d}" fill="none" stroke="{color}" stroke-width="2.7" '
+                        f'pathLength="100" stroke-dasharray="3 97" stroke-dashoffset="26"/>'
+                        '</g></g>')
+    return "".join(elements)
 
 
-def wires(front):
-    name = "near" if front else "far"
-    rails = []
-    for index in range(MERIDIANS):
-        path = meridian(2 * pi * index / MERIDIANS, front)
-        rails.append(f'<path class="{name} p{index}" d="{path}"/>')
-    # Tightly spaced latitude lines toward one pole give the plate its weight.
-    for latitude in (12, 20, 28, 36, 44, 52, 60, 69, 79, 90, 102, 115, 128, 141, 154, 167):
-        path = parallel(latitude, front)
-        if path:
-            rails.append(f'<path d="{path}"/>')
-    return "\n".join(rails)
+def particles():
+    pieces = []
+    for i in range(16):
+        # Each set of grains belongs to a cut tip of the corresponding band.
+        loom = i % 2
+        flank = -1 if (i//2)%2 else 1
+        axis = radians(-38 if loom == 0 else 39)
+        reach = flank*(145 + (i*13)%42)
+        cross = (i*23)%28 - 14
+        x, y = reach*cos(axis)-cross*sin(axis), reach*sin(axis)+cross*cos(axis)
+        color = BLUE if loom == 0 else TEAL
+        w = 1.4 + (i%3)*.7
+        dock_x = flank*(145 if loom == 0 else 133) - reach
+        dock_y = (i%3-1)*1.8 - cross
+        pieces.append(f'<g transform="translate({x:.1f} {y:.1f}) rotate({-38 if loom==0 else 39})">'
+                      f'<g class="grain" style="animation-delay:-{i*.39:.2f}s;--dx:{dock_x:.1f}px;--dy:{dock_y:.1f}px">'
+                      f'<rect x="{-w:.1f}" y="-1" width="{w*2:.1f}" height="{w:.1f}" fill="{color}" opacity=".8"/>'
+                      '</g></g>')
+    return "".join(pieces)
 
 
-def orbit(front):
-    # The same two particles draw behind the sphere for half their orbit,
-    # then on its face. Translation preserves their circular silhouette.
-    half = "bottom" if front else "top"
-    return f"""<g transform="rotate(-21)" fill="none" stroke="{TEAL}">
-  <path d="M196 0A196 46 0 0 {1 if front else 0} -196 0" stroke-width="{1.9 if front else 1.05}"/>
-  <g clip-path="url(#{half})">
-    <g class="travel">
-      <circle cx="196" r="4.7" fill="{TEAL}" stroke="white" stroke-width="1.5"/>
-    </g>
-    <g transform="rotate(180)">
-      <g class="travel"><circle cx="196" r="3.4" fill="white" stroke-width="1.8"/></g>
-    </g>
-  </g>
-</g>"""
+def topology():
+    # Rosettes in the central window are the terminals of a switching bridge.
+    # One diagonal hands the connection to the other every half-cycle.
+    vertices = [(-70,6),(-31,-32),(28,-39),(69,-11),(40,21),(-22,38)]
+    edges = [(0,1),(1,2),(2,3),(3,4),(4,5),(5,0)]
+    elements = []
+    for a,b in edges:
+        elements.append(f'<path d="{path([vertices[a],vertices[b]])}" stroke="#365e91" stroke-opacity=".55" stroke-width=".95" fill="none"/>')
+    for cls, a,b in [("bridgeA",1,4),("bridgeB",2,5)]:
+        elements.append(f'<path class="{cls}" d="{path([vertices[a],(0,0),vertices[b]])}" stroke="{TEAL}" '
+                        f'stroke-width="1.25" fill="none" stroke-dasharray="2 2" opacity="{.8 if cls=="bridgeA" else .1}"/>')
+    # The marker runs from vertex to vertex over a closed routed strand.
+    route = path(vertices,True)
+    elements.append(f'<path class="route" d="{route}" pathLength="100" stroke="{BLUE}" stroke-width="2.6" '
+                    'stroke-dasharray="4 96" stroke-dashoffset="0" fill="none"/>')
+    lengths = [hypot(vertices[b][0]-vertices[a][0],vertices[b][1]-vertices[a][1]) for a,b in edges]
+    for i,(x,y) in enumerate(vertices):
+        delay = 8*sum(lengths[:i])/sum(lengths)-8
+        elements.append(f'<g transform="translate({x} {y})"><circle r="3.1" fill="#fff" stroke="{BLUE}" stroke-width="1.3"/>'
+                        f'<circle class="hit" style="animation-delay:{delay:.2f}s" r="5.4" fill="none" stroke="{TEAL}" stroke-width="1.2" opacity="0"/></g>')
+    return "".join(elements)
 
 
-def globe():
-    belt = parallel(90, True)
-    return f"""<g>
-  {orbit(False)}
-  <g transform="rotate(18)">
-    <circle r="{RADIUS}" fill="url(#ceramic)" stroke="{BLUE}" stroke-width="1.9"/>
-    <g fill="none" stroke="{BLUE}" opacity=".22" stroke-width=".8">
-      {wires(False)}
-    </g>
-    <g fill="none" stroke="{BLUE}" stroke-width="1.55">
-      {wires(True)}
-    </g>
-    <path d="{belt}" fill="none" stroke="{BLUE}" stroke-width="5"/>
-    <circle cx="0" cy="{-RADIUS * cos(TILT):.1f}" r="4" fill="{INK}"/>
-  </g>
-  {orbit(True)}
-</g>"""
+def core():
+    faces = ribbon_faces(0) + ribbon_faces(1)
+    # Drawing the facets from back to front lets the bands pass over and
+    # under each other. The nucleus occupies the actual gap between layers.
+    nucleus = f'''<g>
+      <circle class="wave" r="17" fill="none" stroke="{TEAL}" stroke-width="1" opacity=".5"/>
+      <path d="M0-12 12-2 2 12-11 2Z" fill="{INK}"/>
+      <path d="M0-12 12-2 1 0Z" fill="#afdfec"/><path d="m1 0 11-2-10 14Z" fill="{BLUE}"/>
+      <path d="M-11 2 0-12 1 0Z" fill="#ffffff" stroke="{BLUE}" stroke-width=".7"/>
+    </g>'''
+    faces.append((-3,topology()))
+    faces.append((0,nucleus))
+    return orbit(False) + "".join(f for _,f in sorted(faces)) + particles() + orbit(True)
 
 
-def draw(mobile):
-    if mobile:
-        width, height, margin = 520, 620, 24
-        mast, head_rule, foot_rule = 27, 64, 555
-        title_y, title_size, sub_y, sub_size = 171, 121, 213, 29
-        cx, cy, scale = 261, 390, 1.0
-        field_x, field_y, field_w, field_h = 19, 238, 482, 301
-    else:
-        width, height, margin = 1120, 448, 40
-        mast, head_rule, foot_rule = 29, 70, 379
-        title_y, title_size, sub_y, sub_size = 245, 163, 297, 36
-        cx, cy, scale = 852, 224, 1.03
-        field_x, field_y, field_w, field_h = 598, 80, 482, 288
-    right = width - margin
-    title_x = margin - 5
-    footer_y = foot_rule + 39
-    corners = (f"M{field_x} {field_y+14}v-14h15 M{field_x+field_w-15} {field_y}h15v14 "
-               f"M{field_x} {field_y+field_h-14}v14h15 M{field_x+field_w-15} {field_y+field_h}h15v-14")
-    wordmark = (f'<text x="{title_x}" y="{title_y}" font-family="Inter, Helvetica Neue, Arial, sans-serif" '
-                f'font-weight="800" letter-spacing="{-title_size * .067:.1f}" font-size="{title_size}">Xiaore</text>')
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-labelledby="title desc">
-<title id="title">Xiaore · Engineering Intelligence.</title>
-<desc id="desc">XIAORE / AGENT LAB. AI Agents / LLM Systems. A blue wireframe sphere revolves inside an inclined teal orbit.</desc>
-<defs>
-  <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
-    <path d="M24 0H0v24" fill="none" stroke="{LINE}" stroke-width=".8"/>
-    <circle r="1.4" fill="{LINE}"/>
-  </pattern>
-  <radialGradient id="ceramic" cx="34%" cy="27%" r="83%">
-    <stop stop-color="white"/><stop offset=".67" stop-color="#F6F8FA"/>
-    <stop offset="1" stop-color="#D7E0EA"/>
-  </radialGradient>
-  <clipPath id="plot"><rect x="{field_x}" y="{field_y}" width="{field_w}" height="{field_h}"/></clipPath>
-  <clipPath id="top"><rect x="-210" y="-80" width="420" height="80"/></clipPath>
-  <clipPath id="bottom"><rect x="-210" width="420" height="80"/></clipPath>
-  <clipPath id="cut"><rect x="{title_x}" y="{title_y - title_size * .38:.1f}" width="{title_size * 3.5}" height="4.5"/></clipPath>
-  <g id="wordmark">{wordmark}</g>
-</defs>
-<style>
-{animated_styles()}
-</style>
-<rect width="{width}" height="{height}" fill="#F6F8FA"/>
-<g transform="translate({margin} {mast-3})" fill="{BLUE}">
-  <path d="M0 0h9l7 7-5 5z M22 0h9L12 22H3z M20 15l8 8h-9l-4-4z"/>
-</g>
-<g fill="{INK}" font-family="Inter, Helvetica Neue, Arial, sans-serif">
-  <text x="{margin+43}" y="{mast+16}" font-size="{19 if mobile else 17}" font-weight="700" letter-spacing="1.3">XIAORE / AGENT LAB</text>
-  <text x="{right}" y="{mast+16}" text-anchor="end" font-family="{MONO}" fill="{INK}" opacity=".78" font-size="{17 if mobile else 15}" letter-spacing="1.2">XR–01</text>
-  <path d="M{margin} {head_rule}H{right}M{margin} {foot_rule}H{right}" fill="none" stroke="{LINE}" stroke-width="1.3"/>
-  <g clip-path="url(#plot)">
-    <rect x="{field_x}" y="{field_y}" width="{field_w}" height="{field_h}" fill="white"/>
-    <rect class="grid-drift" x="{field_x-24}" y="{field_y-24}" width="{field_w+48}" height="{field_h+48}" fill="url(#grid)" opacity=".8"/>
-    <path class="scanner" opacity="0" d="M{field_x} {cy}H{field_x+field_w}" stroke="{TEAL}" stroke-width=".8"/>
-  </g>
-  <path d="{corners}" fill="none" stroke="{MUTED}" opacity=".6" stroke-width="1"/>
-  <g transform="translate({cx} {cy}) scale({scale})">
-    {globe()}
-  </g>
-  <use href="#wordmark" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#wordmark"/>
-  <g clip-path="url(#cut)"><g class="glitch" opacity="0" fill="#E88DAB">{wordmark}</g></g>
-  <text x="{margin}" y="{sub_y}" font-size="{sub_size}" letter-spacing="-1.2" font-weight="500">Engineering Intelligence.</text>
-</g>
-<g font-family="{MONO}" font-size="{20 if mobile else 17}" fill="{INK}">
-  <path d="M{margin} {footer_y-12}h6v12h-6z M{margin+10} {footer_y-12}h3v12h-3z" fill="{BLUE}"/>
-  <text x="{margin+25}" y="{footer_y}">AI Agents / LLM Systems</text>
-  <text x="{right}" y="{footer_y}" text-anchor="end" fill="{INK}" opacity=".78" font-size="{16 if mobile else 15}" letter-spacing=".8">{'FIG. 01' if mobile else 'FIG. 01   /   ORBITAL STUDY'}</text>
-</g>
-</svg>
+STYLE = """
+@keyframes turnA{0%,100%{transform:rotate(-3deg) scale(1,.97)}50%{transform:rotate(3deg) scale(.97,1.03)}}
+@keyframes turnB{0%,100%{transform:rotate(2deg) scale(1,1.02)}50%{transform:rotate(-3deg) scale(1.03,.96)}}
+.ribbon0{animation:turnA 15s ease-in-out infinite}.ribbon1{animation:turnB 19s ease-in-out infinite}
+@keyframes precessA{0%,100%{transform:rotate(0) scale(1,.8)}50%{transform:rotate(12deg) scale(.96,1.17)}}
+@keyframes precessB{0%,100%{transform:rotate(1deg) scale(.97,.76)}50%{transform:rotate(-16deg) scale(1,.99)}}
+.tiltA{animation:precessA 29s ease-in-out infinite}.tiltB{animation:precessB 23s ease-in-out infinite}
+@keyframes rewireA{0%,38%,100%{opacity:.85}52%,87%{opacity:.08}}
+@keyframes rewireB{0%,38%,100%{opacity:.08}52%,87%{opacity:.85}}
+.bridgeA{animation:rewireA 8s ease-in-out infinite}.bridgeB{animation:rewireB 8s ease-in-out infinite}
+@keyframes route{to{stroke-dashoffset:-100}}.route{animation:route 8s linear infinite}
+@keyframes hit{0%{opacity:.85;transform:scale(.72)}12%{opacity:0;transform:scale(1.8)}100%{opacity:0}}
+.hit{animation:hit 8s ease-out infinite}
+@keyframes transmit{to{stroke-dashoffset:-74}}.relay{animation:transmit 9s linear infinite}
+@keyframes gather{0%,18%,100%{transform:translate(0,0);opacity:.8}52%,64%{transform:translate(var(--dx),var(--dy));opacity:.4}}
+.grain{animation:gather 7s ease-in-out infinite}
+@keyframes emit{0%,100%{opacity:0;transform:scale(.65)}18%{opacity:.58}70%{opacity:0;transform:scale(3.4)}}
+.wave{animation:emit 7.5s ease-out infinite}
+@keyframes drift{to{transform:translate(22px,22px)}}.field{animation:drift 26s linear infinite}
+@keyframes scan{0%,100%{opacity:0;transform:translateY(-62px)}31%{opacity:.36}76%{opacity:0;transform:translateY(68px)}}
+.scanner{animation:scan 18s ease-in-out infinite}
+@keyframes slip{0%,86%,91%,100%{opacity:0;transform:translateX(0)}88%{opacity:.72;transform:translateX(3px)}}
+.glitch{animation:slip 16s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
 """
 
 
+def draw(mobile):
+    w,h = (500,570) if mobile else (1120,449)
+    margin = 25 if mobile else 39
+    title_x, title_y, scale = (24,77,1.10) if mobile else (36,143,1.64)
+    sub_y = 218 if mobile else 345
+    cx,cy,unit = (253,363,.96) if mobile else (849,223,1.08)
+    left,right = (26,474) if mobile else (627,1080)
+    top,bottom = (239,500) if mobile else (68,366)
+    # A custom-cut X and a permanently offset blue inlay keep the first
+    # letter distinctive even when the narrow chromatic slice is at rest.
+    mark = f'''<g fill="{INK}">
+      <path d="M0 0h24l23 32-13 18Z M43 57l13-18 37 51H69Z M65 0h24L25 90H1Z"/>
+      <path d="m44 56 12-17 3 4-12 17z" fill="{BLUE}"/>
+      <text x="89" y="90" font-size="126" font-family="{SANS}" font-weight="750" letter-spacing="-8">iaore</text>
+    </g>'''
+    footer = h-26
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-labelledby="title desc">
+<title id="title">Xiaore · Engineering Intelligence.</title>
+<desc id="desc">XIAORE / AGENT LAB. Phase Loom: two folded ribbons cross around a crystal nucleus. AI Agents / LLM Systems.</desc>
+<defs>
+  <pattern id="field" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".83" fill="#9bb0c5"/></pattern>
+  <clipPath id="viewport"><rect x="{left-7}" y="{top}" width="{right-left+14}" height="{bottom-top}"/></clipPath>
+  <clipPath id="slice"><path d="M0 37h345v3H0z"/></clipPath>
+  <g id="letters">{mark}</g>
+</defs>
+<style>{STYLE}</style>
+<rect width="{w}" height="{h}" fill="{PAPER}"/>
+<path d="M{margin} 58H{w-margin}M{margin} {h-63}H{w-margin}" stroke="{RULE}"/>
+<g font-family="{MONO}" fill="{INK}" font-size="{14 if mobile else 15}">
+  <path d="M{margin} 25h8l16 17h-8z M{margin+17} 25h8l-17 17h-8z" fill="{BLUE}"/>
+  <text x="{margin+39}" y="40" font-family="{SANS}" font-weight="700" letter-spacing="1.6">XIAORE / AGENT LAB</text>
+  <text x="{w-margin}" y="40" text-anchor="end" letter-spacing="1.3" fill="{MUTED}">ED. 02</text>
+</g>
+<g clip-path="url(#viewport)">
+  <rect class="field" x="{left-22}" y="{top-22}" width="{right-left+44}" height="{bottom-top+44}" fill="url(#field)" opacity=".48"/>
+  <path d="M{left} {cy}H{right} M{cx} {top}V{bottom}" stroke="{RULE}" stroke-dasharray="3 7" fill="none"/>
+  <path class="scanner" d="M{left} {cy}H{right}" opacity="0" stroke="{TEAL}" stroke-width="1"/>
+</g>
+<g transform="translate({cx} {cy}) scale({unit})">{core()}</g>
+<g fill="none" stroke="#94a5b6"><path d="M{left} {top+12}v-12h12 M{right-12} {bottom}h12v-12"/></g>
+<text x="{cx+7}" y="{top+11}" font-family="{MONO}" font-size="12" letter-spacing=".7" fill="{MUTED}">Y+</text>
+<text x="{right-2}" y="{cy-5}" text-anchor="end" font-family="{MONO}" font-size="12" letter-spacing=".7" fill="{MUTED}">X+</text>
+<text x="{left+2}" y="{bottom-3}" font-family="{MONO}" font-size="11" fill="{MUTED}">O (0,0)</text>
+<g transform="translate({title_x} {title_y}) scale({scale})">
+  <use href="#letters" xlink:href="#letters"/>
+  <g clip-path="url(#slice)"><g class="glitch" opacity="0"><use href="#letters" xlink:href="#letters"/><path d="M25 37h21v3H25z" fill="#E88DAB"/></g></g>
+</g>
+<text x="{margin}" y="{sub_y}" fill="{INK}" font-family="{SANS}" font-size="{29 if mobile else 36}" letter-spacing="-1.3">Engineering Intelligence.</text>
+<g font-family="{MONO}" font-size="{15 if mobile else 17}">
+  <path d="M{margin} {footer-11}h5v12h-5z M{margin+8} {footer-11}h2v12h-2z" fill="{BLUE}"/>
+  <text x="{margin+21}" y="{footer}" fill="{INK}">AI Agents / LLM Systems</text>
+  <text x="{w-margin}" y="{footer}" text-anchor="end" fill="{MUTED}" font-size="{14 if mobile else 15}">PHASE LOOM</text>
+</g>
+</svg>
+'''
+
+
 if __name__ == "__main__":
-    ASSETS.mkdir(parents=True, exist_ok=True)
-    for mobile, name in [(False, "hero.svg"), (True, "hero-mobile.svg")]:
-        (ASSETS / name).write_text(draw(mobile), encoding="utf-8")
+    for suffix, narrow in [("",False),("-mobile",True)]:
+        (ART / f"hero{suffix}.svg").write_text(draw(narrow), encoding="utf-8")
